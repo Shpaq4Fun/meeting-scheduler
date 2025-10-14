@@ -1,0 +1,5 @@
+{
+  "name": "AI Meeting Scheduler",
+  "description": "An intelligent meeting scheduler that helps find the perfect meeting time by analyzing the calendars of selected users. It uses AI to suggest optimal slots and provides a consolidated weekly view of everyone's schedule.",
+  "requestFramePermissions": []
+}
