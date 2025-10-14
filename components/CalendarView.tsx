@@ -9,7 +9,7 @@ interface CalendarViewProps {
 }
 
 const WEEK_DAYS = ['PON.', 'WT.', 'ŚR.', 'CZW.', 'PT.', 'SOB.', 'NIEDZ.'];
-const HOURS = Array.from({ length: 13}, (_, i) => 6 + i); // 6 AM to 6 PM (18:00)
+const HOURS = Array.from({ length: 14}, (_, i) => 6 + i); // 6 AM to 6 PM (18:00)
 
 const usersById = (users: User[]) => users.reduce((acc, user) => {
     acc[user.id] = user;
@@ -209,9 +209,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
             const dayKey = toYYYYMMDD(date);
             const dayEvents = processedEventsByDay[dayKey] || [];
             return(
-                <div key={dayIndex} className="relative border-l border-gray-600">
+                <div key={dayIndex} className="relative border-l border-r border-gray-600">
                 {HOURS.map((_, hourIndex) => (
-                    <div key={hourIndex} className="h-14 border-t border-gray-600"></div>
+                    <div key={hourIndex} className="h-14 border-t border-b border-gray-600"></div>
                 ))}
                 {dayEvents
                     .map(event => (

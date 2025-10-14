@@ -1,25 +1,46 @@
 
 import React from 'react';
 import { Button } from './Button';
+import { USE_MOCK_AUTH, USE_REAL_DATA } from '../constants';
 
 interface ControlsProps {
   onGenerateCalendar: () => void;
   onCreateMeeting: () => void;
   onSendInvitation: () => void;
   isInvitationDisabled: boolean;
+  isGenerateDisabled?: boolean;
 }
 
-export const Controls: React.FC<ControlsProps> = ({ onGenerateCalendar, onCreateMeeting, onSendInvitation, isInvitationDisabled }) => {
+export const Controls: React.FC<ControlsProps> = ({
+  onGenerateCalendar,
+  onCreateMeeting,
+  onSendInvitation,
+  isInvitationDisabled,
+  isGenerateDisabled
+}) => {
   return (
-    <div className="border border-blue-500 rounded-lg p-4 bg-gray-700/50">
-      <h2 className="text-xl font-semibold mb-4 text-gray-100">Controls</h2>
-      <div className="flex flex-col gap-3">
-        <Button onClick={onGenerateCalendar}>Generate Calendar</Button>
-        <Button onClick={onCreateMeeting}>Create Meeting</Button>
-        <Button onClick={onSendInvitation} disabled={isInvitationDisabled}>
-          Send Invitation
-        </Button>
-      </div>
+    <div className="flex flex-col gap-2 p-1 rounded-lg bg-gray-800">
+      <Button onClick={onGenerateCalendar} disabled={isGenerateDisabled}>
+        {USE_MOCK_AUTH && !USE_REAL_DATA
+          ? 'Generate Calendar (Mock Data)'
+          : USE_REAL_DATA
+            ? 'Generate Calendar (Real Data)'
+            : isGenerateDisabled
+              ? 'Sign in to Generate Calendar'
+              : 'Generate Calendar'
+        }
+      </Button>
+      <Button onClick={onCreateMeeting} disabled={isGenerateDisabled}>
+        {USE_MOCK_AUTH
+          ? 'Create Meeting (Mock Mode)'
+          : isGenerateDisabled
+            ? 'Sign in to Create Meeting'
+            : 'Create Meeting'
+        }
+      </Button>
+      <Button onClick={onSendInvitation} disabled={isInvitationDisabled}>
+        {isInvitationDisabled ? 'Create a meeting first' : 'Send Invitation'}
+      </Button>
     </div>
   );
 };

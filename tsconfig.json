@@ -11,7 +11,8 @@
     ],
     "skipLibCheck": true,
     "types": [
-      "node"
+      "node",
+      "./types/gapi.d.ts"
     ],
     "moduleResolution": "bundler",
     "isolatedModules": true,

@@ -8,6 +8,10 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        headers: {
+          // Removed restrictive CSP headers that block Google OAuth scripts
+          // For development, we'll rely on browser defaults
+        },
       },
       plugins: [react()],
       define: {

@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { UserSelection } from './components/UserSelection';
 import { Controls } from './components/Controls';
 import { CalendarView } from './components/CalendarView';
 import { CreateMeetingModal } from './components/CreateMeetingModal';
-import { USERS } from './constants';
+import { USERS, MOCK_EVENTS, USE_MOCK_AUTH, USE_REAL_DATA } from './constants';
 import { fetchEventsForUsers } from './services/googleCalendarService';
+import { initClient, signIn, getAccessToken } from './services/googleAuthService';
 import type { User, CalendarEvent, SuggestedSlot } from './types';
 
 const App: React.FC = () => {
@@ -13,10 +14,53 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [proposedMeeting, setProposedMeeting] = useState<CalendarEvent | null>(null);
   const [currentWeekStartDate, setCurrentWeekStartDate] = useState(new Date());
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    if (USE_MOCK_AUTH) {
+      // Mock authentication for testing
+      setIsSignedIn(true);
+    } else if (USE_REAL_DATA) {
+      // Initialize Google API for real data
+      initClient().then(() => {
+        // Check if we have a valid access token
+        const token = getAccessToken();
+        setIsSignedIn(!!token);
+      }).catch((error) => {
+        console.error('Google API initialization failed:', error);
+        setIsSignedIn(false);
+      });
+    } else {
+      // Mock authentication when not using real data
+      setIsSignedIn(true);
+    }
+  }, []);
+
+  const handleSignIn = async () => {
+    if (USE_MOCK_AUTH) {
+      setIsSignedIn(true);
+    } else {
+      try {
+        await signIn();
+        // Check if we got an access token
+        const token = getAccessToken();
+        setIsSignedIn(!!token);
+      } catch (error) {
+        console.error('Sign-in failed:', error);
+        setIsSignedIn(false);
+      }
+    }
+  };
 
   const selectedUsers = useMemo(() => {
     return USERS.filter(user => selectedUserIds.includes(user.id));
   }, [selectedUserIds]);
+
+  // Load initial mock events when selectedUsers changes
+  useEffect(() => {
+    const initialMockEvents = selectedUsers.flatMap(user => MOCK_EVENTS[user.id] || []);
+    setEvents(initialMockEvents);
+  }, [selectedUsers]);
 
   const handleUserToggle = useCallback((userId: string) => {
     setSelectedUserIds(prev =>
@@ -26,9 +70,28 @@ const App: React.FC = () => {
   }, []);
 
   const handleGenerateCalendar = useCallback(async () => {
-    // This is where you would make the real API call using selectedUsers' calendarIds
-    const visibleEvents = await fetchEventsForUsers(selectedUsers, currentWeekStartDate);
-    setEvents(visibleEvents);
+    if (USE_REAL_DATA && !USE_MOCK_AUTH) {
+      // Try to fetch real calendar data with real OAuth
+      try {
+        console.log('Attempting to fetch real calendar data...');
+        const visibleEvents = await fetchEventsForUsers(selectedUsers, currentWeekStartDate);
+        console.log('Successfully fetched real data:', visibleEvents.length, 'events');
+        setEvents(visibleEvents);
+      } catch (error) {
+        console.error('Failed to fetch real data, falling back to mock data:', error);
+        console.error('Error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          status: (error as any)?.status,
+          code: (error as any)?.code
+        });
+        const mockEvents = selectedUsers.flatMap(user => MOCK_EVENTS[user.id] || []);
+        setEvents(mockEvents);
+      }
+    } else {
+      // Show mock events for testing interface
+      const mockEvents = selectedUsers.flatMap(user => MOCK_EVENTS[user.id] || []);
+      setEvents(mockEvents);
+    }
     setProposedMeeting(null); // Clear previous proposal
   }, [selectedUsers, currentWeekStartDate]);
   
@@ -66,13 +129,37 @@ const App: React.FC = () => {
           {/* Left Sidebar */}
           <aside className="w-full md:w-1/5 flex flex-col gap-3">
             <h2 className="text-2xl font-bold mb-3 text-gray-100" style={{textAlignLast: 'center'}}>Meeting planner</h2>
+
+            {/* Always show user selection */}
             <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
+
+            {/* Show controls but disable when not signed in */}
             <Controls
               onGenerateCalendar={handleGenerateCalendar}
               onCreateMeeting={() => setIsModalOpen(true)}
               onSendInvitation={handleSendInvitation}
-              isInvitationDisabled={!proposedMeeting}
+              isInvitationDisabled={!proposedMeeting || !isSignedIn}
+              isGenerateDisabled={!isSignedIn}
             />
+
+            {/* Show sign-in button when not signed in */}
+            {!isSignedIn && !USE_MOCK_AUTH && (
+              <button onClick={handleSignIn} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Sign In with Google
+              </button>
+            )}
+            {USE_MOCK_AUTH && (
+              <div className={`text-white font-bold py-2 px-4 rounded text-center ${
+                USE_REAL_DATA ? 'bg-blue-600' : 'bg-green-600'
+              }`}>
+                🔓 Mock Auth: {USE_REAL_DATA ? 'Real Data Mode' : 'Mock Data Mode'}
+              </div>
+            )}
+            {!USE_MOCK_AUTH && (
+              <div className="bg-purple-600 text-white font-bold py-2 px-4 rounded text-center">
+                🔐 Real OAuth: Real Data Mode
+              </div>
+            )}
           </aside>
 
           {/* Right Content */}

@@ -1,5 +1,14 @@
 import type { User, CalendarEvent } from './types';
 
+export const CLIENT_ID = "447637794753-1cs7vg1tigb7abguco0caulb7v64mk3m.apps.googleusercontent.com";
+// Enable mock mode for testing interface without OAuth
+export const USE_MOCK_AUTH = false;
+// Set to true if you want to fetch real calendar data (requires OAuth setup)
+export const USE_REAL_DATA = true;
+// TODO: Add your API key
+export const API_KEY = "AIzaSyD5znlkVslVGWLkWg7r5O5Zz8gdXXEuVoE";
+export const SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+
 export const USERS: User[] = [
   { id: 'user-0', name: 'DMC', color: 'bg-gray-500', calendarId: 'c_8h6bnbm5se6ha0s6kol29fpeuk@group.calendar.google.com' },
   { id: 'user-1', name: 'Jacek Wodecki', color: 'bg-blue-500', calendarId: 'jacek.wodecki@pwr.edu.pl' },

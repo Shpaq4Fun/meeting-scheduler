@@ -10,13 +10,15 @@
   },
   "dependencies": {
     "@google/genai": "^1.24.0",
-    "react-dom": "^19.2.0",
-    "react": "^19.2.0"
+    "gapi-script": "^1.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vite-plugin-cross-origin-isolation": "^0.1.6"
   }
 }
