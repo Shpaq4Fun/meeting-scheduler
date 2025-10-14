@@ -56,11 +56,13 @@ const App: React.FC = () => {
     return USERS.filter(user => selectedUserIds.includes(user.id));
   }, [selectedUserIds]);
 
-  // Load initial mock events when selectedUsers changes
+  // Load initial mock events only once on component mount
   useEffect(() => {
-    const initialMockEvents = selectedUsers.flatMap(user => MOCK_EVENTS[user.id] || []);
-    setEvents(initialMockEvents);
-  }, [selectedUsers]);
+    if (events.length === 0) {
+      const initialMockEvents = selectedUsers.flatMap(user => MOCK_EVENTS[user.id] || []);
+      setEvents(initialMockEvents);
+    }
+  }, []); // Empty dependency array - only run once on mount
 
   const handleUserToggle = useCallback((userId: string) => {
     setSelectedUserIds(prev =>
