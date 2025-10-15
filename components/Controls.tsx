@@ -9,6 +9,8 @@ interface ControlsProps {
   onSendInvitation: () => void;
   isInvitationDisabled: boolean;
   isGenerateDisabled?: boolean;
+  hasProposedMeeting?: boolean;
+  hasConfirmedMeeting?: boolean;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -17,7 +19,9 @@ export const Controls: React.FC<ControlsProps> = ({
   onProposeMeeting,
   onSendInvitation,
   isInvitationDisabled,
-  isGenerateDisabled
+  isGenerateDisabled,
+  hasProposedMeeting = false,
+  hasConfirmedMeeting = false
 }) => {
   return (
     <div className="flex flex-col gap-2 p-1 rounded-lg bg-gray-800">
@@ -25,11 +29,18 @@ export const Controls: React.FC<ControlsProps> = ({
         {isGenerateDisabled ? 'Sign in to Generate Calendar' : 'Generate Calendar'}
       </Button>
       <Button onClick={onCreateMeeting} disabled={isGenerateDisabled}>
-        {isGenerateDisabled ? 'Sign in to Create Meeting' : 'Create Meeting'}
+        {isGenerateDisabled
+          ? 'Sign in to Create Meeting'
+          : hasConfirmedMeeting
+            ? 'Delete Confirmed Meeting'
+            : hasProposedMeeting
+              ? 'Delete Proposed Meeting'
+              : 'Create Meeting'
+        }
       </Button>
-      <Button onClick={onProposeMeeting} disabled={isGenerateDisabled}>
+      {/* <Button onClick={onProposeMeeting} disabled={isGenerateDisabled}>
         {isGenerateDisabled ? 'Sign in to Propose Meeting' : 'Propose Meeting'}
-      </Button>
+      </Button> */}
       <Button onClick={onSendInvitation} disabled={isInvitationDisabled}>
         {isInvitationDisabled ? 'Create a meeting to send an invitation' : 'Send Invitation'}
       </Button>

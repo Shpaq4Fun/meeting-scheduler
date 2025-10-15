@@ -4,7 +4,7 @@ import { Controls } from './components/Controls';
 import { CalendarView } from './components/CalendarView';
 import { CreateMeetingModal } from './components/CreateMeetingModal';
 import { USERS } from './constants';
-import { fetchEventsForUsers, createCalendarEvent } from './services/googleCalendarService';
+import { fetchEventsForUsers, createCalendarEvent, deleteCalendarEvent } from './services/googleCalendarService';
 import { suggestMeetingTimes } from './services/geminiService';
 import { initClient, signIn, getAccessToken } from './services/googleAuthService';
 import type { User, CalendarEvent, SuggestedSlot } from './types';
@@ -92,6 +92,58 @@ const App: React.FC = () => {
     setProposedMeeting([]);
   },[proposedMeeting]);
 
+  const handleCreateOrDeleteMeeting = useCallback(async () => {
+    // Check if there's a proposed meeting to delete
+    if (proposedMeeting) {
+      try {
+        // Check if this is a confirmed meeting (has real Google Calendar event ID)
+        if (proposedMeeting.userId === 'confirmed-meeting' && proposedMeeting.id.startsWith('confirmed-') === false) {
+          // This is a real Google Calendar event, delete it from Google Calendar too
+          const dmcUser = USERS.find(user => user.id === 'user-0');
+          if (dmcUser && dmcUser.invitationCalId) {
+            await deleteCalendarEvent(proposedMeeting.id, dmcUser.invitationCalId);
+            console.log('Confirmed meeting deleted from Google Calendar');
+          }
+        }
+
+        // Delete the meeting from local state
+        setEvents(prev => prev.filter(e => e.id !== proposedMeeting.id));
+        setProposedMeeting(null);
+        console.log('Meeting deleted successfully');
+
+      } catch (error) {
+        console.error('Failed to delete meeting:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        alert(`❌ Failed to delete meeting:\n\n${errorMessage}\n\nPlease check the console for more details.`);
+      }
+    } else {
+      // Check if there are any confirmed meetings to delete
+      const confirmedMeetings = events.filter(e => e.userId === 'confirmed-meeting');
+      if (confirmedMeetings.length > 0) {
+        try {
+          const meetingToDelete = confirmedMeetings[0]; // Delete the first confirmed meeting
+          const dmcUser = USERS.find(user => user.id === 'user-0');
+          if (dmcUser && dmcUser.invitationCalId) {
+            await deleteCalendarEvent(meetingToDelete.id, dmcUser.invitationCalId);
+            console.log('Confirmed meeting deleted from Google Calendar');
+          }
+
+          // Delete the meeting from local state
+          setEvents(prev => prev.filter(e => e.id !== meetingToDelete.id));
+          console.log('Confirmed meeting deleted successfully');
+
+        } catch (error) {
+          console.error('Failed to delete confirmed meeting:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          alert(`❌ Failed to delete confirmed meeting:\n\n${errorMessage}\n\nPlease check the console for more details.`);
+        }
+      } else {
+        // No proposed or confirmed meetings, open modal to create new meeting
+        setIsModalOpen(true);
+      }
+    }
+  }, [proposedMeeting, events]);
+
   const handleSendInvitation = useCallback(async () => {
     if (proposedMeeting) {
       try {
@@ -168,11 +220,13 @@ const App: React.FC = () => {
             {/* Show controls but disable when not signed in */}
             <Controls
               onGenerateCalendar={handleGenerateCalendar}
-              onCreateMeeting={() => setIsModalOpen(true)}
+              onCreateMeeting={handleCreateOrDeleteMeeting}
               onProposeMeeting={handleProposeMeeting}
               onSendInvitation={handleSendInvitation}
               isInvitationDisabled={!proposedMeeting || !isSignedIn}
               isGenerateDisabled={!isSignedIn}
+              hasProposedMeeting={!!proposedMeeting}
+              hasConfirmedMeeting={events.some(e => e.userId === 'confirmed-meeting')}
             />
 
             {/* Show sign-in button when not signed in */}
