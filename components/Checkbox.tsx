@@ -4,11 +4,13 @@ import React from 'react';
 interface CheckboxProps {
   id: string;
   label: string;
+  color: string;
   checked: boolean;
   onChange: () => void;
 }
 
-export const Checkbox: React.FC<CheckboxProps> = ({ id, label, checked, onChange }) => {
+export const Checkbox: React.FC<CheckboxProps> = ({ id, label, color, checked, onChange }) => {
+  const color2 = color.slice(3, 0);
   return (
     <label htmlFor={id} className="flex items-center cursor-pointer">
       <div className="relative">
@@ -27,7 +29,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({ id, label, checked, onChange
           )}
         </div>
       </div>
-      <span className="ml-3 text-lg">{label}</span>
+      <span className={`ml-3 text-base text-${color2}`}>{label}</span>
     </label>
   );
 };

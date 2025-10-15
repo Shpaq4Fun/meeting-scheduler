@@ -5,6 +5,7 @@ import { Button } from './Button';
 interface ControlsProps {
   onGenerateCalendar: () => void;
   onCreateMeeting: () => void;
+  onProposeMeeting: () => void;
   onSendInvitation: () => void;
   isInvitationDisabled: boolean;
   isGenerateDisabled?: boolean;
@@ -13,6 +14,7 @@ interface ControlsProps {
 export const Controls: React.FC<ControlsProps> = ({
   onGenerateCalendar,
   onCreateMeeting,
+  onProposeMeeting,
   onSendInvitation,
   isInvitationDisabled,
   isGenerateDisabled
@@ -25,8 +27,11 @@ export const Controls: React.FC<ControlsProps> = ({
       <Button onClick={onCreateMeeting} disabled={isGenerateDisabled}>
         {isGenerateDisabled ? 'Sign in to Create Meeting' : 'Create Meeting'}
       </Button>
+      <Button onClick={onProposeMeeting} disabled={isGenerateDisabled}>
+        {isGenerateDisabled ? 'Sign in to Propose Meeting' : 'Propose Meeting'}
+      </Button>
       <Button onClick={onSendInvitation} disabled={isInvitationDisabled}>
-        {isInvitationDisabled ? 'Create a meeting first' : 'Send Invitation'}
+        {isInvitationDisabled ? 'Create a meeting to send an invitation' : 'Send Invitation'}
       </Button>
     </div>
   );

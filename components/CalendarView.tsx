@@ -33,7 +33,7 @@ const toYYYYMMDD = (date: Date): string => {
 };
 
 const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, user }) => {
-  const userColor = user?.color || 'bg-gray-400';
+  const userColor = user?.color || 'bg-fuchsia-600';
   const timeFormat = new Intl.DateTimeFormat('pl-PL', { hour: '2-digit', minute: '2-digit' });
 
   // Handle all-day events
@@ -47,7 +47,7 @@ const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, us
   
   return (
     <div
-      className={`absolute p-1 rounded-md text-xs text-white ${userColor} overflow-hidden z-10`}
+      className={`absolute p-1 rounded-md text-xs text-gray-200 ${userColor} overflow-hidden z-10`}
       style={{ 
         top: `${event.layout.top / 16}rem`, 
         height: `${event.layout.height / 16}rem`,

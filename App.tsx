@@ -5,11 +5,12 @@ import { CalendarView } from './components/CalendarView';
 import { CreateMeetingModal } from './components/CreateMeetingModal';
 import { USERS } from './constants';
 import { fetchEventsForUsers } from './services/googleCalendarService';
+import { suggestMeetingTimes } from './services/geminiService';
 import { initClient, signIn, getAccessToken } from './services/googleAuthService';
 import type { User, CalendarEvent, SuggestedSlot } from './types';
 
 const App: React.FC = () => {
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(['user-1', 'user-4', 'user-5']);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>(['user-0']);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [proposedMeeting, setProposedMeeting] = useState<CalendarEvent | null>(null);
@@ -86,6 +87,11 @@ const App: React.FC = () => {
     setIsModalOpen(false);
   },[proposedMeeting]);
 
+  const handleProposeMeeting = useCallback((slot: SuggestedSlot, title: string) => {
+    // suggestMeetingTimes(schedules, durationMinutes, prompt, weekStartDate)
+    setProposedMeeting([]);
+  },[proposedMeeting]);
+
   const handleSendInvitation = useCallback(() => {
     if (proposedMeeting) {
       alert(`Invitation sent for "${proposedMeeting.title}"!`);
@@ -100,12 +106,12 @@ const App: React.FC = () => {
   }, [proposedMeeting]);
 
   return (
-    <div className="bg-[#1a202c] text-gray-200 p-2 font-sans flex-col flex-row">
+    <div className="bg-[#1a202c] text-gray-200 p-4 font-sans flex-col flex-row">
       {/* <div className="border h-full border-blue-600 rounded-lg p-4 bg-[#1a202c]"> */}
         
-        <div className="flex flex-col md:flex-row gap-2 h-full">
+        <div className="flex flex-col md:flex-row gap-3 h-full">
           {/* Left Sidebar */}
-          <aside className="w-full md:w-1/5 flex flex-col gap-3">
+          <aside className="w-full md:w-1/5 flex flex-col gap-4">
             <h2 className="text-2xl font-bold mb-3 text-gray-100" style={{textAlignLast: 'center'}}>Meeting planner</h2>
 
             {/* Always show user selection */}
@@ -115,6 +121,7 @@ const App: React.FC = () => {
             <Controls
               onGenerateCalendar={handleGenerateCalendar}
               onCreateMeeting={() => setIsModalOpen(true)}
+              onProposeMeeting={handleProposeMeeting}
               onSendInvitation={handleSendInvitation}
               isInvitationDisabled={!proposedMeeting || !isSignedIn}
               isGenerateDisabled={!isSignedIn}

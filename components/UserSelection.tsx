@@ -11,7 +11,7 @@ interface UserSelectionProps {
 
 export const UserSelection: React.FC<UserSelectionProps> = ({ users, selectedUserIds, onUserToggle }) => {
   return (
-    <div className="border border-blue-500 rounded-lg p-4 bg-gray-700/50">
+    <div className="rounded-lg p-4 bg-gray-700/50">
       <h2 className="text-xl font-semibold mb-4 text-gray-100">DMC Members</h2>
       <div className="flex flex-col gap-1">
         {users.map(user => (
@@ -19,6 +19,7 @@ export const UserSelection: React.FC<UserSelectionProps> = ({ users, selectedUse
             key={user.id}
             id={user.id}
             label={user.name}
+            color={user.color}
             checked={selectedUserIds.includes(user.id)}
             onChange={() => onUserToggle(user.id)}
           />
