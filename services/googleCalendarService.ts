@@ -87,3 +87,96 @@ export async function fetchEventsForUsers(
 
   return allEvents;
 }
+
+/**
+ * Creates a new calendar event and sends invitations to attendees.
+ *
+ * @param meeting - The meeting details to create.
+ * @param attendees - Array of attendee email addresses.
+ * @param targetCalendarId - The calendar ID where the event should be created.
+ * @returns A promise that resolves to the created event details.
+ */
+export async function createCalendarEvent(
+  meeting: { title: string; start: Date; end: Date; description?: string },
+  attendees: string[],
+  targetCalendarId: string
+): Promise<any> {
+  // Ensure Google API client is initialized
+  try {
+    await initClient();
+    console.log('Google API client initialized for event creation');
+  } catch (error) {
+    console.error('Failed to initialize Google API client:', error);
+    throw new Error(`Google API client initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  // Get access token and set it for API calls
+  const token = getAccessToken();
+  if (!token) {
+    throw new Error('No access token available. User must sign in first.');
+  }
+
+  // Set the access token for GAPI client
+  window.gapi.client.setToken({ access_token: token });
+
+  // Prepare attendees list
+  const eventAttendees = attendees.map(email => ({
+    email: email
+  }));
+
+  // Create the event object
+  const event = {
+    summary: meeting.title,
+    start: {
+      dateTime: meeting.start.toISOString(),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Warsaw'
+    },
+    end: {
+      dateTime: meeting.end.toISOString(),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Warsaw'
+    },
+    attendees: eventAttendees,
+    description: meeting.description || 'Meeting scheduled via Meeting Scheduler',
+    status: 'confirmed',
+    sendUpdates: 'all' // This will send invitation emails to attendees
+  };
+
+  try {
+    console.log('Creating calendar event:', {
+      title: meeting.title,
+      start: meeting.start,
+      end: meeting.end,
+      attendees: attendees,
+      calendarId: targetCalendarId
+    });
+
+    const response = await window.gapi.client.calendar.events.insert({
+      calendarId: targetCalendarId,
+      resource: event,
+      sendUpdates: 'all'
+    });
+
+    console.log('Calendar event created successfully:', response.result);
+    return response.result;
+
+  } catch (error: any) {
+    console.error('Failed to create calendar event:', error);
+    console.error('Error details:', {
+      message: error.message,
+      status: error.status,
+      code: error.code,
+      stack: error.stack
+    });
+
+    // Provide more specific error messages
+    if (error.status === 403) {
+      throw new Error('Permission denied. Please check calendar permissions and ensure you have write access.');
+    } else if (error.status === 401) {
+      throw new Error('Authentication failed. Please sign in again.');
+    } else if (error.status === 400) {
+      throw new Error('Invalid event data. Please check the meeting details and try again.');
+    } else {
+      throw new Error(`Failed to create calendar event: ${error.message || 'Unknown error'}`);
+    }
+  }
+}

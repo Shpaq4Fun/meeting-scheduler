@@ -4,7 +4,7 @@ import { Controls } from './components/Controls';
 import { CalendarView } from './components/CalendarView';
 import { CreateMeetingModal } from './components/CreateMeetingModal';
 import { USERS } from './constants';
-import { fetchEventsForUsers } from './services/googleCalendarService';
+import { fetchEventsForUsers, createCalendarEvent } from './services/googleCalendarService';
 import { suggestMeetingTimes } from './services/geminiService';
 import { initClient, signIn, getAccessToken } from './services/googleAuthService';
 import type { User, CalendarEvent, SuggestedSlot } from './types';
@@ -92,18 +92,66 @@ const App: React.FC = () => {
     setProposedMeeting([]);
   },[proposedMeeting]);
 
-  const handleSendInvitation = useCallback(() => {
+  const handleSendInvitation = useCallback(async () => {
     if (proposedMeeting) {
-      alert(`Invitation sent for "${proposedMeeting.title}"!`);
-      // In a real app, this would call an API.
-      // For this demo, we'll "confirm" the meeting by changing its user ID and making it permanent
-      const confirmedMeeting = { ...proposedMeeting, userId: 'confirmed-meeting' };
-      setEvents(prev => [...prev.filter(e => e.id !== proposedMeeting.id), confirmedMeeting]);
-      setProposedMeeting(null);
+      try {
+        // Get attendee email addresses from selected users
+        const attendeeEmails = selectedUsers
+          .filter(user => user.invitationCalId)
+          .map(user => user.invitationCalId!);
+
+        if (attendeeEmails.length === 0) {
+          alert("No attendees found. Please ensure users have invitation email addresses configured.");
+          return;
+        }
+
+        // Use DMC calendar (user-0) for creating the event
+        const dmcUser = USERS.find(user => user.id === 'user-0');
+        if (!dmcUser || !dmcUser.invitationCalId) {
+          alert("DMC calendar not properly configured. Please check user settings.");
+          return;
+        }
+
+        console.log('Sending invitations for meeting:', {
+          title: proposedMeeting.title,
+          attendees: attendeeEmails,
+          calendarId: dmcUser.invitationCalId
+        });
+
+        // Create the calendar event and send invitations
+        const createdEvent = await createCalendarEvent(
+          {
+            title: proposedMeeting.title,
+            start: proposedMeeting.start,
+            end: proposedMeeting.end,
+            description: `Meeting scheduled via DMC Meeting Scheduler with ${selectedUsers.map(u => u.name).join(', ')}`
+          },
+          attendeeEmails,
+          dmcUser.invitationCalId
+        );
+
+        // Update UI to show the meeting as confirmed
+        const confirmedMeeting = {
+          ...proposedMeeting,
+          id: createdEvent.id || `confirmed-${Date.now()}`,
+          userId: 'confirmed-meeting'
+        };
+
+        setEvents(prev => [...prev.filter(e => e.id !== proposedMeeting.id), confirmedMeeting]);
+        setProposedMeeting(null);
+
+        // Show success message with event details
+        alert(`✅ Invitation sent successfully!\n\nMeeting: "${proposedMeeting.title}"\nTime: ${proposedMeeting.start.toLocaleString()}\nAttendees: ${selectedUsers.map(u => u.name).join(', ')}\n\nParticipants will receive calendar invitations via email.`);
+
+      } catch (error) {
+        console.error('Failed to send invitation:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        alert(`❌ Failed to send invitation:\n\n${errorMessage}\n\nPlease check the console for more details.`);
+      }
     } else {
       alert("Please create and propose a meeting first.");
     }
-  }, [proposedMeeting]);
+  }, [proposedMeeting, selectedUsers]);
 
   return (
     <div className="bg-[#1a202c] text-gray-200 p-4 font-sans flex-col flex-row">

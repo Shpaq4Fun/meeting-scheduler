@@ -3,6 +3,7 @@ export interface User {
   name: string;
   color: string;
   calendarId: string;
+  invitationCalId?: string;
 }
 
 export interface CalendarEvent {
