@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           # --- ⚠️ CUSTOMIZE THIS ---
-          node-version: 22 # Change this to your project's Node.js version
+          node-version: 22.14.0 # Change this to your project's Node.js version
 
       - name: Install dependencies
         run: npm ci # 'npm ci' is often faster and more reliable for CI/CD than 'npm install'
