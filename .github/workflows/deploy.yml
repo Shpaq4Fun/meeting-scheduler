@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           # Path to the folder that contains your built static files
-          path: './build' # --- ⚠️ CUSTOMIZE THIS ---
+          path: './dist' # --- ⚠️ CUSTOMIZE THIS ---
 
       - name: Deploy to GitHub Pages
         id: deployment
