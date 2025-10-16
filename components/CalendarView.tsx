@@ -237,9 +237,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
         </h2>
         <button onClick={() => changeWeek(1)} className="px-3 py-0 text-2xl bg-blue-950 rounded hover:bg-blue-700">&gt;</button>
       </div>
-      <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] -mr-2">
+      <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,1fr] -mr-2">
         {/* Header */}
-        <div className="text-xs text-gray-400 -mb-1">GMT+02</div>
+        {/* <div className="text-xs text-gray-400 -mb-1">GMT+02</div> */}
         {weekDates.map((date, i) => (
           <div key={i} className="text-center">
             <p className="text-xl text-gray-300">{WEEK_DAYS[i]}</p>
@@ -248,13 +248,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
         ))}
         {/* Body */}
         {/* <div className="col-span-1 row-span-1"></div> */}
-        <div className="col-start-2 col-span-7 row-span-1 border-b border-gray-500 -ml-3 p-2 -mb-0"></div>
+        <div className="col-start-1 col-span-7 row-span-1 border-b border-gray-500 ml-1 p-2 -mb-0"></div>
 
-        <div className="col-start-1 col-end-9 grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] relative h-full overflow-y-auto">
+        <div className="col-start-1 col-end-9 grid grid-cols-[0.01fr,1fr,1fr,1fr,1fr,1fr,1fr,1fr] relative h-full overflow-y-auto">
           {/* Time Gutter */}
-          <div className="relative">
+          <div className="relative w-1">
             {HOURS.map(hour => (
-              <div key={hour} className="h-14 text-right pr-2 text-xs text-gray-400 relative -top-1">
+              <div key={hour} className="h-14 text-right pr-2 text-xs text-gray-400 relative -top-0 -right-1">
                 {`${hour.toString().padStart(2, '0')}:00`}
               </div>
             ))}
