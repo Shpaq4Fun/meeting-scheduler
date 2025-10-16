@@ -1,0 +1,57 @@
+# A simple workflow for deploying a static web app to GitHub Pages
+name: Deploy static content to Pages
+
+# This workflow runs on pushes to the 'main' branch
+on:
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets the permissions for the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # Single job for building and deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          # --- ⚠️ CUSTOMIZE THIS ---
+          node-version: 22 # Change this to your project's Node.js version
+
+      - name: Install dependencies
+        run: npm ci # 'npm ci' is often faster and more reliable for CI/CD than 'npm install'
+
+      - name: Build the project
+        run: npm run build # --- ⚠️ CUSTOMIZE THIS ---
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          # Path to the folder that contains your built static files
+          path: './build' # --- ⚠️ CUSTOMIZE THIS ---
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
