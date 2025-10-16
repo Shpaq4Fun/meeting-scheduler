@@ -1,5 +1,5 @@
 <div align="center">
-<img width="1200" height="750" alt="DMC Meeting Planner Banner" src="screenshot.png" />
+<img width="1200" height="750" alt="DMC Meeting Planner Banner" src="https://github.com/Shpaq4Fun/meeting-scheduler/blob/main/screenshot.PNG?raw=true" />
 </div>
 
 # 🤖 DMC Meeting Planner
