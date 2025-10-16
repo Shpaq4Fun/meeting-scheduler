@@ -231,11 +231,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
   return (
     <div className="bg-[#1a202c]/0 rounded-lg p-2 h-full flex flex-col">
       <div className="flex justify-between items-center">
-        <button onClick={() => changeWeek(-1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&lt;</button>
+        <button onClick={() => changeWeek(-1)} className="px-3 py-0 text-2xl bg-blue-950 rounded hover:bg-blue-700">&lt;</button>
         <h2 className="text-3xl font-bold font-size-40px text-gray-300">
             {new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(startDate)}
         </h2>
-        <button onClick={() => changeWeek(1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&gt;</button>
+        <button onClick={() => changeWeek(1)} className="px-3 py-0 text-2xl bg-blue-950 rounded hover:bg-blue-700">&gt;</button>
       </div>
       <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] -mr-2">
         {/* Header */}

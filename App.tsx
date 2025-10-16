@@ -235,12 +235,12 @@ const App: React.FC = () => {
 
             {/* Show sign-in button when not signed in */}
             {!isSignedIn && (
-              <button onClick={handleSignIn} className="bg-blue-700 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white font-bold px-4 rounded-lg">
+              <button onClick={handleSignIn} className="bg-blue-950 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white font-bold px-4 rounded-lg">
                 Sign In with Google
               </button>
             )}
             {isSignedIn && (
-              <div className="bg-green-600 py-2 text-xl text-white font-bold px-4 rounded-lg text-center">
+              <div className="bg-green-800 py-2 text-xl text-white font-bold px-4 rounded-lg text-center">
                 ✅ Authenticated
               </div>
             )}
