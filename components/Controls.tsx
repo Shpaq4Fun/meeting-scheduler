@@ -24,8 +24,8 @@ export const Controls: React.FC<ControlsProps> = ({
   hasConfirmedMeeting = false
 }) => {
   return (
-    <div className="flex flex-col gap-2 p-1 rounded-lg bg-gray-800">
-      <Button onClick={onGenerateCalendar} disabled={isGenerateDisabled}>
+    <div className="flex flex-col gap-3 p-0 rounded-lg bg-gray-800">
+      <Button onClick={onGenerateCalendar} disabled={isGenerateDisabled} className="text-3xl">
         {isGenerateDisabled ? 'Sign in to Generate Calendar' : 'Generate Calendar'}
       </Button>
       <Button onClick={onCreateMeeting} disabled={isGenerateDisabled}>
@@ -42,7 +42,7 @@ export const Controls: React.FC<ControlsProps> = ({
         {isGenerateDisabled ? 'Sign in to Propose Meeting' : 'Propose Meeting'}
       </Button> */}
       <Button onClick={onSendInvitation} disabled={isInvitationDisabled}>
-        {isInvitationDisabled ? 'Create a meeting to send an invitation' : 'Send Invitation'}
+        {isInvitationDisabled ? 'Create a meeting to invite' : 'Send Invitation'}
       </Button>
     </div>
   );

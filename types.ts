@@ -4,6 +4,7 @@ export interface User {
   color: string;
   calendarId: string;
   invitationCalId?: string;
+  active?: boolean;
 }
 
 export interface CalendarEvent {

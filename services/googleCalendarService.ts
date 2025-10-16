@@ -30,20 +30,41 @@ export async function fetchEventsForUsers(
   // Set the access token for GAPI client
   window.gapi.client.setToken({ access_token: token });
 
-  const timeMin = startDate.toISOString();
-  const timeMax = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  // Calculate the start and end of the week properly
+  const startOfWeek = new Date(startDate);
+  startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() + 6) % 7); // Monday
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(endOfWeek.getDate() + 7); // Next Monday
+  endOfWeek.setHours(0, 0, 0, 0);
+
+  const timeMin = startOfWeek.toISOString();
+  const timeMax = endOfWeek.toISOString();
+
+  console.log('Fetching events for date range:', {
+    startOfWeek: startOfWeek.toISOString(),
+    endOfWeek: endOfWeek.toISOString(),
+    timeMin,
+    timeMax
+  });
 
   let allEvents: CalendarEvent[] = [];
 
   for (const user of users) {
     try {
+      console.log(`Fetching events for ${user.name} (${user.calendarId})`);
       const res = await window.gapi.client.calendar.events.list({
         calendarId: user.calendarId,
         timeMin,
         timeMax,
         singleEvents: true,
         orderBy: 'startTime',
+        maxResults: 100, // Increase from default 25
+        showDeleted: false,
       });
+
+      console.log(`Found ${res.result.items?.length || 0} raw events for ${user.name}`);
 
       const events = res.result.items;
       if (events && events.length) {
@@ -53,11 +74,51 @@ export async function fetchEventsForUsers(
               console.warn('Skipping event with missing id or summary:', event);
               return null;
             }
+
+            // Better all-day event detection
+            const isAllDay = !event.start.dateTime && event.start.date;
+            const startDate = isAllDay
+              ? new Date(event.start.date + 'T00:00:00.000Z')
+              : new Date(event.start.dateTime);
+
+            let endDate = isAllDay
+              ? new Date(event.end.date + 'T23:59:59.999Z')
+              : new Date(event.end.dateTime);
+
+            // Fix for Google Calendar API all-day events ending one day later
+            if (isAllDay && event.end.date) {
+              const endDateObj = new Date(event.end.date);
+              endDateObj.setDate(endDateObj.getDate()); // Subtract 1 day
+              endDate = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), endDateObj.getDate(), 23, 59, 59, 999);
+            }
+
+            console.log('Processing event:', {
+              id: event.id,
+              title: event.summary,
+              isAllDay,
+              start: startDate.toISOString(),
+              end: endDate.toISOString(),
+              startInRange: startDate >= startOfWeek && startDate < endOfWeek,
+              endInRange: endDate >= startOfWeek && endDate < endOfWeek,
+              duration: endDate.getTime() - startDate.getTime(),
+              daysDifference: Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000))
+            });
+
+            // Special logging for multi-day events
+            if (Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)) > 1) {
+              console.log('MULTI-DAY EVENT DETECTED:', {
+                title: event.summary,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                span: `${Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000))} days`
+              });
+            }
+
             return {
               id: event.id,
               title: event.summary,
-              start: new Date(event.start.dateTime || event.start.date),
-              end: new Date(event.end.dateTime || event.end.date),
+              start: startDate,
+              end: endDate,
               userId: user.id,
             };
           })

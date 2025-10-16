@@ -33,39 +33,61 @@ const toYYYYMMDD = (date: Date): string => {
 };
 
 const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, user }) => {
-  const userColor = user?.color || 'bg-fuchsia-600';
-  const timeFormat = new Intl.DateTimeFormat('pl-PL', { hour: '2-digit', minute: '2-digit' });
+   // Use green color for confirmed meetings, otherwise use user color or default
+   const userColor = event.userId === 'confirmed-meeting'
+     ? 'bg-green-600'
+     : user?.color || 'bg-fuchsia-600';
+   const timeFormat = new Intl.DateTimeFormat('pl-PL', { hour: '2-digit', minute: '2-digit' });
 
-  // Handle all-day events
-  if (event.start.getHours() === 0 && event.start.getMinutes() === 0 && event.end.getHours() === 23 && event.end.getMinutes() === 59) {
-    return (
-      <div className={`absolute top-0 left-1 right-1 p-1 rounded-md text-xs font-semibold text-white ${userColor} z-10`}>
-        {event.title}
-      </div>
-    );
-  }
-  
-  return (
-    <div
-      className={`absolute p-1 rounded-md text-xs text-gray-200 ${userColor} overflow-hidden z-10`}
-      style={{ 
-        top: `${event.layout.top / 16}rem`, 
-        height: `${event.layout.height / 16}rem`,
-        left: `${event.layout.left}%`,
-        width: `calc(${event.layout.width}% - 1px)`,
-        minHeight: '2rem'
-      }}
-    >
-      <p className="font-bold">{event.title}</p>
-      <p>{timeFormat.format(event.start)} - {timeFormat.format(event.end)}</p>
-      {user && <p className="text-gray-200 text-[10px]">{user.name}</p>}
-    </div>
-  );
+   // Handle all-day events (check if it's a full day event spanning from midnight to midnight)
+   // Also check for events that end at 23:59 (without seconds) or are multi-day
+   const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
+   const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
+
+   const isAllDay = (event.start.getHours() === 0 && event.start.getMinutes() === 0 &&
+                    (event.end.getHours() === 23 && event.end.getMinutes() === 59)) ||
+                    // Multi-day events (end date is after start date)
+                    (endDate > startDate);
+
+   console.log(`EventCard rendering: "${event.title}" - All-day: ${isAllDay}, Color: ${userColor}`);
+
+   if (isAllDay) {
+     console.log(`RENDERING ALL-DAY EVENT: ${event.title} at top of day`);
+     return (
+       <div className={`absolute top-0 left-1 right-1 p-2 rounded-md text-xs font-semibold text-white ${userColor} z-20 border-2 border-white border-opacity-50`}>
+         📅 {event.title}
+       </div>
+     );
+   }
+
+   return (
+     <div
+       className={`absolute p-1 rounded-md text-xs text-gray-200 ${userColor} overflow-hidden z-10 background-image-[%linear-gradient(105deg,rgb(0 249 255 / 100%) 39%, rgb(51 56 57 / 100%) 96%);%]`}
+       style={{
+         top: `${event.layout.top / 16}rem`,
+         height: `${event.layout.height / 16}rem`,
+         left: `${event.layout.left}%`,
+         width: `calc(${event.layout.width}% - 1px)`,
+         minHeight: '2rem',
+       }}
+     >
+       <p className="font-bold">{event.title}</p>
+       <p>{timeFormat.format(event.start)} - {timeFormat.format(event.end)}</p>
+       {user && <p className="text-gray-200 text-[10px]">{user.name}</p>}
+     </div>
+   );
 };
 
 const processEventsForLayout = (dayEvents: CalendarEvent[]): ProcessedEvent[] => {
     const timedEvents = dayEvents
-        .filter(event => !(event.start.getHours() === 0 && event.start.getMinutes() === 0 && event.end.getHours() === 23 && event.end.getMinutes() === 59))
+        .filter(event => {
+          const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
+          const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
+          const isAllDay = (event.start.getHours() === 0 && event.start.getMinutes() === 0 &&
+                           (event.end.getHours() === 23 && event.end.getMinutes() === 59)) ||
+                           (endDate > startDate);
+          return !isAllDay;
+        })
         .sort((a, b) => a.start.getTime() - b.start.getTime());
 
     if (timedEvents.length === 0) return [];
@@ -153,16 +175,50 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
     const eventsByDay: Record<string, CalendarEvent[]> = {};
     
     events.forEach(event => {
-      const dayKey = toYYYYMMDD(event.start);
-      if (!eventsByDay[dayKey]) eventsByDay[dayKey] = [];
-      eventsByDay[dayKey].push(event);
-    });
+       const dayKey = toYYYYMMDD(event.start);
+       if (!eventsByDay[dayKey]) eventsByDay[dayKey] = [];
+       eventsByDay[dayKey].push(event);
+
+       // For multi-day events, also add to subsequent days
+       // Use a simpler approach: if end date is more than 1 day after start date, it's multi-day
+       const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
+       const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
+
+       // Check if this is actually a multi-day event (end date > start date)
+       if (endDate > startDate) {
+         console.log(`Multi-day event "${event.title}" from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}, adding to days in between`);
+
+         // Add to each day between start and end (not including start, which is already added)
+         let currentDate = new Date(startDate);
+         currentDate.setDate(currentDate.getDate() + 1); // Start from next day
+
+         while (currentDate < endDate) {
+           const nextDayKey = toYYYYMMDD(currentDate);
+           if (!eventsByDay[nextDayKey]) eventsByDay[nextDayKey] = [];
+           eventsByDay[nextDayKey].push(event);
+           console.log(`  Added to ${nextDayKey}`);
+           currentDate.setDate(currentDate.getDate() + 1);
+         }
+       }
+     });
 
     const processed: Record<string, ProcessedEvent[]> = {};
     for (const dayKey in eventsByDay) {
         const dayEvents = eventsByDay[dayKey];
-        const allDayEvents = dayEvents.filter(e => e.start.getHours() === 0 && e.start.getMinutes() === 0 && e.end.getHours() === 23 && e.end.getMinutes() === 59);
-        
+        const allDayEvents = dayEvents.filter(e => {
+          const startDate = new Date(e.start.getFullYear(), e.start.getMonth(), e.start.getDate());
+          const endDate = new Date(e.end.getFullYear(), e.end.getMonth(), e.end.getDate());
+          const isAllDayPrecise = (e.start.getHours() === 0 && e.start.getMinutes() === 0 &&
+                                  (e.end.getHours() === 23 && e.end.getMinutes() === 59)) ||
+                                  (endDate > startDate);
+          if (isAllDayPrecise) {
+            console.log('ALL-DAY EVENT for day', dayKey, ':', e.title, e.start.toISOString(), e.end.toISOString());
+          }
+          return isAllDayPrecise;
+        });
+
+        console.log(`Processing day ${dayKey}: ${dayEvents.length} total events, ${allDayEvents.length} all-day events`);
+
         processed[dayKey] = [
             ...processEventsForLayout(dayEvents),
             // Pass all-day events through with a default layout, they are handled separately
@@ -173,26 +229,26 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
 }, [events]);
 
   return (
-    <div className="bg-[#1a202c] rounded-lg p-4 h-full flex flex-col">
-       <div className="flex justify-between items-center mb-4">
+    <div className="bg-[#1a202c] rounded-lg p-2 h-full flex flex-col">
+      <div className="flex justify-between items-center mb-2">
         <button onClick={() => changeWeek(-1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&lt;</button>
-        <h2 className="text-3xl font-bold font-size-40px">
+        <h2 className="text-4xl font-bold font-size-40px">
             {new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(startDate)}
         </h2>
         <button onClick={() => changeWeek(1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&gt;</button>
       </div>
-      <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] flex-grow -mr-4">
+      <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] flex-grow -mr-2">
         {/* Header */}
         <div className="text-xs text-gray-400">GMT+02</div>
         {weekDates.map((date, i) => (
           <div key={i} className="text-center">
-            <p className="text-xs text-gray-400">{WEEK_DAYS[i]}</p>
-            <p className="text-2xl font-bold">{date.getDate()}</p>
+            <p className="text-xl text-gray-400">{WEEK_DAYS[i]}</p>
+            <p className="text-5xl font-bold">{date.getDate()}</p>
           </div>
         ))}
         {/* Body */}
-        <div className="col-span-1 row-span-1"></div>
-        <div className="col-span-7 row-span-1 border-b border-gray-600"></div>
+        {/* <div className="col-span-1 row-span-1"></div> */}
+        <div className="col-start-2 col-span-7 row-span-1 border-b border-gray-600 -ml-3"></div>
 
         <div className="col-start-1 col-end-9 grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] relative h-full overflow-y-auto">
           {/* Time Gutter */}
@@ -208,10 +264,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
           {weekDates.map((date, dayIndex) => {
             const dayKey = toYYYYMMDD(date);
             const dayEvents = processedEventsByDay[dayKey] || [];
+            // console.log(`Rendering day ${dayKey} (${WEEK_DAYS[dayIndex]} ${date.getDate()}): ${dayEvents.length} events`);
+            // dayEvents.forEach(event => {
+            //   console.log(`  - ${event.title} (${event.userId}) - All day: ${event.start.getHours() === 0 && event.start.getMinutes() === 0 && event.end.getHours() === 23 && event.end.getMinutes() === 59 && event.end.getSeconds() === 59}`);
+            // });
             return(
-                <div key={dayIndex} className="relative border-l border-r border-gray-600">
+                <div key={dayIndex} className="relative border-r border-gray-600">
                 {HOURS.map((_, hourIndex) => (
-                    <div key={hourIndex} className="h-14 border-t border-b border-gray-600"></div>
+                    <div key={hourIndex} className="h-14 border-b border-gray-600"></div>
                 ))}
                 {dayEvents
                     .map(event => (

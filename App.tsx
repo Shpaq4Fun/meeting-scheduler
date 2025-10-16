@@ -16,6 +16,7 @@ const App: React.FC = () => {
   const [proposedMeeting, setProposedMeeting] = useState<CalendarEvent | null>(null);
   const [currentWeekStartDate, setCurrentWeekStartDate] = useState(new Date());
   const [isSignedIn, setIsSignedIn] = useState(false);
+  
 
   useEffect(() => {
     // Initialize Google API client
@@ -41,6 +42,8 @@ const App: React.FC = () => {
     }
   };
 
+  // handleSignIn();
+
   const selectedUsers = useMemo(() => {
     return USERS.filter(user => selectedUserIds.includes(user.id));
   }, [selectedUserIds]);
@@ -57,8 +60,13 @@ const App: React.FC = () => {
   const handleGenerateCalendar = useCallback(async () => {
     try {
       console.log('Fetching calendar events for users:', selectedUsers.map(u => u.name));
+      console.log('Week start date:', currentWeekStartDate);
       const visibleEvents = await fetchEventsForUsers(selectedUsers, currentWeekStartDate);
       console.log('Successfully fetched calendar data:', visibleEvents.length, 'events');
+      console.log('Events by user:', visibleEvents.reduce((acc, event) => {
+        acc[event.userId] = (acc[event.userId] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>));
       setEvents(visibleEvents);
       setProposedMeeting(null);
     } catch (error) {
@@ -206,14 +214,18 @@ const App: React.FC = () => {
   }, [proposedMeeting, selectedUsers]);
 
   return (
-    <div className="bg-[#1a202c] text-gray-200 p-4 font-sans flex-col flex-row">
+    <div className="bg-[#1a202c] text-gray-200 p-2 font-sans flex-col flex-row">
       {/* <div className="border h-full border-blue-600 rounded-lg p-4 bg-[#1a202c]"> */}
         
         <div className="flex flex-col md:flex-row gap-3 h-full">
           {/* Left Sidebar */}
-          <aside className="w-full md:w-1/5 flex flex-col gap-4">
-            <h2 className="text-2xl font-bold mb-3 text-gray-100" style={{textAlignLast: 'center'}}>Meeting planner</h2>
-
+          <aside className="w-full md:w-1/6 flex flex-col gap-4">
+            <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-100" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
+            <p>1. Sign in with Google account (required for GCal apps)</p>
+            <p className="-mt-4">2. Select users for the meeting and the correct week. App will import events from their teaching calendars.</p>
+            <p className="-mt-4">3. Generate a calendar for the selected users.</p>
+            <p className="-mt-4">4. Based on free areas create a meeting proposition.</p>
+            <p className="-mt-4">5. Send invitations to the created meeting to selected users.</p>
             {/* Always show user selection */}
             <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
 
@@ -231,19 +243,19 @@ const App: React.FC = () => {
 
             {/* Show sign-in button when not signed in */}
             {!isSignedIn && (
-              <button onClick={handleSignIn} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              <button onClick={handleSignIn} className="bg-blue-500 py-3 text-xl hover:bg-blue-700 transition duration-300 text-white font-bold px-4 rounded-lg">
                 Sign In with Google
               </button>
             )}
             {isSignedIn && (
-              <div className="bg-green-600 text-white font-bold py-2 px-4 rounded text-center">
-                ✅ Authenticated with Google
+              <div className="bg-green-600 py-3 text-xl text-white font-bold px-4 rounded-lg text-center">
+                ✅ Authenticated
               </div>
             )}
           </aside>
 
           {/* Right Content */}
-          <main className="w-full md:w-4/5 flex-row">
+          <main className="w-full md:w-5/6 flex-row">
             <CalendarView events={events} users={USERS} startDate={currentWeekStartDate} setStartDate={setCurrentWeekStartDate} />
           </main>
         </div>

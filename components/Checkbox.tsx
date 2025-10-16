@@ -7,10 +7,13 @@ interface CheckboxProps {
   color: string;
   checked: boolean;
   onChange: () => void;
+  active?: boolean;
 }
 
-export const Checkbox: React.FC<CheckboxProps> = ({ id, label, color, checked, onChange }) => {
-  const color2 = color.slice(3, 0);
+export const Checkbox: React.FC<CheckboxProps> = ({ id, label, color, checked, onChange, active = true }) => {
+  // Extract the color class (e.g., 'bg-blue-500' -> 'blue-500')
+  const colorClass = color.replace('bg-', '');
+
   return (
     <label htmlFor={id} className="flex items-center cursor-pointer">
       <div className="relative">
@@ -21,7 +24,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({ id, label, color, checked, o
           checked={checked}
           onChange={onChange}
         />
-        <div className={`w-6 h-6 border-2 rounded ${checked ? 'bg-blue-500 border-blue-500' : 'bg-gray-800 border-blue-500'}`}>
+        <div className={`w-6 h-6 border-2 rounded border-${colorClass} ${checked ? color : 'bg-gray-800'}`}>
           {checked && (
             <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -29,7 +32,9 @@ export const Checkbox: React.FC<CheckboxProps> = ({ id, label, color, checked, o
           )}
         </div>
       </div>
-      <span className={`ml-3 text-base text-${color2}`}>{label}</span>
+      <span className={`ml-3 text-base ${active ? 'text-gray-100' : 'text-gray-500'}`}>
+        {label}
+      </span>
     </label>
   );
 };
