@@ -229,26 +229,26 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
 }, [events]);
 
   return (
-    <div className="bg-[#1a202c] rounded-lg p-2 h-full flex flex-col">
-      <div className="flex justify-between items-center mb-2">
+    <div className="bg-[#1a202c]/0 rounded-lg p-2 h-full flex flex-col">
+      <div className="flex justify-between items-center">
         <button onClick={() => changeWeek(-1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&lt;</button>
-        <h2 className="text-3xl font-bold font-size-40px">
+        <h2 className="text-3xl font-bold font-size-40px text-gray-300">
             {new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(startDate)}
         </h2>
         <button onClick={() => changeWeek(1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&gt;</button>
       </div>
       <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] -mr-2">
         {/* Header */}
-        <div className="text-xs text-gray-400">GMT+02</div>
+        <div className="text-xs text-gray-400 -mb-1">GMT+02</div>
         {weekDates.map((date, i) => (
           <div key={i} className="text-center">
-            <p className="text-xl text-gray-400">{WEEK_DAYS[i]}</p>
-            <p className="text-3xl font-bold">{date.getDate()}</p>
+            <p className="text-xl text-gray-300">{WEEK_DAYS[i]}</p>
+            <p className="text-3xl font-bold text-gray-300  -mb-1">{date.getDate()}</p>
           </div>
         ))}
         {/* Body */}
         {/* <div className="col-span-1 row-span-1"></div> */}
-        <div className="col-start-2 col-span-7 row-span-1 border-b border-gray-600 -ml-3 p-2"></div>
+        <div className="col-start-2 col-span-7 row-span-1 border-b border-gray-500 -ml-3 p-2 -mb-0"></div>
 
         <div className="col-start-1 col-end-9 grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] relative h-full overflow-y-auto">
           {/* Time Gutter */}
@@ -264,14 +264,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
           {weekDates.map((date, dayIndex) => {
             const dayKey = toYYYYMMDD(date);
             const dayEvents = processedEventsByDay[dayKey] || [];
-            // console.log(`Rendering day ${dayKey} (${WEEK_DAYS[dayIndex]} ${date.getDate()}): ${dayEvents.length} events`);
-            // dayEvents.forEach(event => {
-            //   console.log(`  - ${event.title} (${event.userId}) - All day: ${event.start.getHours() === 0 && event.start.getMinutes() === 0 && event.end.getHours() === 23 && event.end.getMinutes() === 59 && event.end.getSeconds() === 59}`);
-            // });
             return(
-                <div key={dayIndex} className="relative border-r border-gray-600">
+                <div key={dayIndex} className="relative border-r border-gray-500">
                 {HOURS.map((_, hourIndex) => (
-                    <div key={hourIndex} className="h-14 border-b border-gray-600"></div>
+                    <div key={hourIndex} className="h-14 border-b border-gray-500"></div>
                 ))}
                 {dayEvents
                     .map(event => (

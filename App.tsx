@@ -8,6 +8,7 @@ import { fetchEventsForUsers, createCalendarEvent, deleteCalendarEvent } from '.
 import { suggestMeetingTimes } from './services/geminiService';
 import { initClient, signIn, getAccessToken } from './services/googleAuthService';
 import type { User, CalendarEvent, SuggestedSlot } from './types';
+import DynamicBackground from './components/DynamicBackground_delaunay';
 
 const App: React.FC = () => {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>(['user-0']);
@@ -214,21 +215,35 @@ const App: React.FC = () => {
   }, [proposedMeeting, selectedUsers]);
 
   return (
+    
     <div className="bg-[#1a202c] text-gray-200 p-2 font-sans flex-col flex-row">
       {/* <div className="border h-full border-blue-600 rounded-lg p-4 bg-[#1a202c]"> */}
-        
-        <div className="flex flex-col md:flex-row gap-3 h-full">
+        <DynamicBackground />
+        <div className="flex flex-col md:flex-row gap-2 h-full relative">
           {/* Left Sidebar */}
-          <aside className="w-full md:w-1/5 flex flex-col gap-4">
-            <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-100" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
-            <p className="text-sm">1. Sign in with PWR Google account (required for GCal apps)</p>
-            <p className="-mt-4 text-sm">2. Select users for the meeting and the correct week.</p>
-            <p className="-mt-4 text-sm">3. Generate a calendar.</p>
-            <p className="-mt-4 text-sm">4. Create a meeting proposition.</p>
-            <p className="-mt-4 text-sm">5. Send invitations to the created meeting to selected users. The meeting is hosted on DMC calendar.</p>
+          <aside className="w-full md:w-1/5 flex flex-col gap-1">
+            <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
+            <p className="text-sm text-gray-300">1. Sign in with PWR Google account (required for GCal apps)</p>
+            <p className="-mt-2 text-sm text-gray-300">2. Select users for the meeting and the correct week.</p>
+            <p className="-mt-2 text-sm text-gray-300">3. Generate a calendar.</p>
+            <p className="-mt-2 text-sm text-gray-300">4. Create a meeting proposition.</p>
+            <p className="-mt-2 text-sm text-gray-300">5. Send invitations to the created meeting to selected users. The meeting is hosted on DMC calendar.</p>
             {/* Always show user selection */}
             <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
 
+            
+
+            {/* Show sign-in button when not signed in */}
+            {!isSignedIn && (
+              <button onClick={handleSignIn} className="bg-blue-700 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white font-bold px-4 rounded-lg">
+                Sign In with Google
+              </button>
+            )}
+            {isSignedIn && (
+              <div className="bg-green-600 py-2 text-xl text-white font-bold px-4 rounded-lg text-center">
+                ✅ Authenticated
+              </div>
+            )}
             {/* Show controls but disable when not signed in */}
             <Controls
               onGenerateCalendar={handleGenerateCalendar}
@@ -240,18 +255,6 @@ const App: React.FC = () => {
               hasProposedMeeting={!!proposedMeeting}
               hasConfirmedMeeting={events.some(e => e.userId === 'confirmed-meeting')}
             />
-
-            {/* Show sign-in button when not signed in */}
-            {!isSignedIn && (
-              <button onClick={handleSignIn} className="bg-blue-500 py-3 text-xl hover:bg-blue-700 transition duration-300 text-white font-bold px-4 rounded-lg">
-                Sign In with Google
-              </button>
-            )}
-            {isSignedIn && (
-              <div className="bg-green-600 py-3 text-xl text-white font-bold px-4 rounded-lg text-center">
-                ✅ Authenticated
-              </div>
-            )}
           </aside>
 
           {/* Right Content */}

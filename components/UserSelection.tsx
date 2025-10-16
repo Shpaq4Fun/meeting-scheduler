@@ -11,7 +11,7 @@ interface UserSelectionProps {
 
 export const UserSelection: React.FC<UserSelectionProps> = ({ users, selectedUserIds, onUserToggle }) => {
   return (
-    <div className="rounded-lg p-2 bg-gray-800">
+    <div className="rounded-lg p-2 bg-gray-900/00">
       {/* <h2 className="text-xl font-semibold mb-4 text-gray-100">DMC Members</h2> */}
       <div className="flex flex-col gap-1">
         {users.map(user => (

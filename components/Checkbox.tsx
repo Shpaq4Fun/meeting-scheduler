@@ -24,7 +24,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({ id, label, color, checked, o
           checked={checked}
           onChange={onChange}
         />
-        <div className={`w-6 h-6 border-2 rounded border-${colorClass} ${checked ? color : 'bg-gray-800'}`}>
+        <div className={`w-6 h-6 border-2 rounded border-${colorClass} ${checked ? color : 'bg-gray-800/0'}`}>
           {checked && (
             <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -32,7 +32,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({ id, label, color, checked, o
           )}
         </div>
       </div>
-      <span className={`ml-3 text-base ${active ? 'text-gray-100' : 'text-gray-500'}`}>
+      <span className={`ml-3 font-bold text-base ${active ? 'text-gray-300' : 'text-gray-500'}`}>
         {label}
       </span>
     </label>
