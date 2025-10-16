@@ -225,7 +225,7 @@ const App: React.FC = () => {
             <p className="-mt-4 text-sm">2. Select users for the meeting and the correct week.</p>
             <p className="-mt-4 text-sm">3. Generate a calendar.</p>
             <p className="-mt-4 text-sm">4. Create a meeting proposition.</p>
-            <p className="-mt-4 text-sm">5. Send invitations to the created meeting to selected users.</p>
+            <p className="-mt-4 text-sm">5. Send invitations to the created meeting to selected users. The meeting is hosted on DMC calendar.</p>
             {/* Always show user selection */}
             <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
 
