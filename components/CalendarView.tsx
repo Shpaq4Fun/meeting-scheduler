@@ -237,7 +237,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
         </h2>
         <button onClick={() => changeWeek(1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&gt;</button>
       </div>
-      <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] flex-grow -mr-2">
+      <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] -mr-2">
         {/* Header */}
         <div className="text-xs text-gray-400">GMT+02</div>
         {weekDates.map((date, i) => (
@@ -248,7 +248,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
         ))}
         {/* Body */}
         {/* <div className="col-span-1 row-span-1"></div> */}
-        <div className="col-start-2 col-span-7 row-span-1 border-b border-gray-600 -ml-3"></div>
+        <div className="col-start-2 col-span-7 row-span-1 border-b border-gray-600 -ml-3 p-2"></div>
 
         <div className="col-start-1 col-end-9 grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr,1fr,1fr] relative h-full overflow-y-auto">
           {/* Time Gutter */}

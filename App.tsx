@@ -219,7 +219,7 @@ const App: React.FC = () => {
         
         <div className="flex flex-col md:flex-row gap-3 h-full">
           {/* Left Sidebar */}
-          <aside className="w-full md:w-1/6 flex flex-col gap-4">
+          <aside className="w-full md:w-1/5 flex flex-col gap-4">
             <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-100" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
             <p>1. Sign in with Google account (required for GCal apps)</p>
             <p className="-mt-4">2. Select users for the meeting and the correct week. App will import events from their teaching calendars.</p>
@@ -255,7 +255,7 @@ const App: React.FC = () => {
           </aside>
 
           {/* Right Content */}
-          <main className="w-full md:w-5/6 flex-row">
+          <main className="w-full md:w-4/5 flex-row">
             <CalendarView events={events} users={USERS} startDate={currentWeekStartDate} setStartDate={setCurrentWeekStartDate} />
           </main>
         </div>
