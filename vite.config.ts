@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
           // For development, we'll rely on browser defaults
         },
       },
+      base: '/my-app/',
       plugins: [react()],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
