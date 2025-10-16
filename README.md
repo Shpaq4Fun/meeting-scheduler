@@ -8,7 +8,7 @@ An intelligent meeting scheduling application designed specifically for the **Di
 
 <div align="center">
 
-### 🚀 **[Try it Live](https://shpaq4fun.github.io/meeting-scheduler/)** | 📖 **[AI Studio View](https://ai.studio/apps/drive/1-xZuhf942yqPu7A-VBOkITWOlb6Efrt9)**
+### 🚀 **[Try it Live](https://shpaq4fun.github.io/meeting-scheduler/)** 
 
 </div>
 
