@@ -222,9 +222,9 @@ const App: React.FC = () => {
           <aside className="w-full md:w-1/5 flex flex-col gap-4">
             <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-100" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
             <p className="text-sm">1. Sign in with Google account (required for GCal apps)</p>
-            <p className="-mt-4 text-sm">2. Select users for the meeting and the correct week. App will import events from their teaching calendars.</p>
-            <p className="-mt-4 text-sm">3. Generate a calendar for the selected users.</p>
-            <p className="-mt-4 text-sm">4. Based on free areas create a meeting proposition.</p>
+            <p className="-mt-4 text-sm">2. Select users for the meeting and the correct week.</p>
+            <p className="-mt-4 text-sm">3. Generate a calendar.</p>
+            <p className="-mt-4 text-sm">4. Create a meeting proposition.</p>
             <p className="-mt-4 text-sm">5. Send invitations to the created meeting to selected users.</p>
             {/* Always show user selection */}
             <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
