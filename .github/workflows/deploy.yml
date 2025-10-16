@@ -42,7 +42,9 @@ jobs:
 
       - name: Build the project
         run: npm run build # --- ⚠️ CUSTOMIZE THIS ---
-
+        env:
+          VITE_API_KEY: ${{ secrets.API_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.API_KEY }} # Make sure you have a separate secret for this if it's a different key        
       - name: Setup Pages
         uses: actions/configure-pages@v4
 

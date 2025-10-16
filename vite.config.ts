@@ -15,10 +15,6 @@ export default defineConfig(({ mode }) => {
       },
       base: '/meeting-scheduler/',
       plugins: [react()],
-      define: {
-        'VITE_API_KEY': ${{ secrets.API_KEY }},
-        'VITE_GEMINI_API_KEY': ${{ secrets.API_KEY }}
-      },
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),

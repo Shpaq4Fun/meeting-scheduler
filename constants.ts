@@ -2,7 +2,7 @@ import type { User, CalendarEvent } from './types';
 
 export const CLIENT_ID = "447637794753-1cs7vg1tigb7abguco0caulb7v64mk3m.apps.googleusercontent.com";
 // TODO: Add your API key
-export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+export const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 export const SCOPES = "https://www.googleapis.com/auth/calendar";
 
 export const USERS: User[] = [
