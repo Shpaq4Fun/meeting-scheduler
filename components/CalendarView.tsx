@@ -232,7 +232,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
     <div className="bg-[#1a202c] rounded-lg p-2 h-full flex flex-col">
       <div className="flex justify-between items-center mb-2">
         <button onClick={() => changeWeek(-1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&lt;</button>
-        <h2 className="text-4xl font-bold font-size-40px">
+        <h2 className="text-3xl font-bold font-size-40px">
             {new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(startDate)}
         </h2>
         <button onClick={() => changeWeek(1)} className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">&gt;</button>
@@ -243,7 +243,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
         {weekDates.map((date, i) => (
           <div key={i} className="text-center">
             <p className="text-xl text-gray-400">{WEEK_DAYS[i]}</p>
-            <p className="text-5xl font-bold">{date.getDate()}</p>
+            <p className="text-3xl font-bold">{date.getDate()}</p>
           </div>
         ))}
         {/* Body */}
