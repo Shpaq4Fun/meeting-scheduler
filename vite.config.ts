@@ -16,8 +16,8 @@ export default defineConfig(({ mode }) => {
       base: '/meeting-scheduler/',
       plugins: [react()],
       define: {
-        'process.env.API_KEY': ${{ secrets.API_KEY }},
-        'process.env.GEMINI_API_KEY': ${{ secrets.API_KEY }}
+        'VITE_API_KEY': ${{ secrets.API_KEY }},
+        'VITE_GEMINI_API_KEY': ${{ secrets.API_KEY }}
       },
       resolve: {
         alias: {
