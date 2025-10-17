@@ -356,9 +356,10 @@ const DynamicBackground: React.FC = () => {
       // Fill canvas with very dark blue background
       // ctx.fillStyle = 'rgb(7, 10, 25)'; // Very dark blue
       // ctx.fillRect(0, 0, canvas.width, canvas.height);
-      const gradient = ctx.createRadialGradient(canvas.width*0.98, canvas.height, 20, canvas.width/2, canvas.height, 950)
-      gradient.addColorStop(0, 'rgba(18, 35, 60)');
-      gradient.addColorStop(1, 'rgb(6, 9, 23)');
+      const gradient = ctx.createRadialGradient(canvas.width-20, canvas.height-2, 50, canvas.width-20, canvas.height, canvas.width*0.99)
+      gradient.addColorStop(0, 'rgba(18, 30, 70)');
+      gradient.addColorStop(0.9, 'rgba(6, 9, 23)');
+      gradient.addColorStop(1, 'rgba(6, 9, 35)');
       ctx.fillStyle = gradient; // Very dark blue
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -371,12 +372,12 @@ const DynamicBackground: React.FC = () => {
       //   } else {
       //       line.alpha = line.targetAlpha;
       //   }
-
+      // 
       //   // If line is faded out, mark for deletion
       //   if (line.targetAlpha === 0 && line.alpha < 0.01) {
       //       linesToDelete.push(key);
       //   }
-
+// 
       //   // Draw the line if it's visible
       //   if (line.alpha > 0.01) {
       //       const lineColor = line.color.replace('rgb', 'rgba').replace(')', `, ${line.alpha})`);
@@ -388,9 +389,9 @@ const DynamicBackground: React.FC = () => {
       //       ctx.stroke();
       //   }
       // });
-      
+      //
       // linesToDelete.forEach(key => linesRef.current.delete(key));
-
+// 
       // // --- Update point fading (size and opacity) ---
       // for (const point of pointsRef.current) {
       //   // Smoothly transition alpha (opacity)
@@ -407,19 +408,19 @@ const DynamicBackground: React.FC = () => {
       //     point.size = point.targetSize;
       //   }
       // }
-
+// 
       // --- Update and draw points ---
       // for (const point of pointsRef.current) {
       //   point.x += point.dx;
       //   point.y += point.dy;
-
+// 
       //   if (point.x <= 0 || point.x >= canvas.width) point.dx *= -1;
       //   const docHeight = getEfficientHeight();
       //   if (point.y <= 0 || point.y >= docHeight) point.dy *= -1;
-
+// 
       //   const clusterIndex = (point.clusterId - 1) % clusterColors.length;
       //   const color = point.clusterId > 0 ? clusterColors[clusterIndex] : noiseColor;
-
+// 
       //   // Set enhanced glow for clustered points with dynamic intensity
       //   // if (point.clusterId > 0) {
       //   //     ctx.shadowColor = color;

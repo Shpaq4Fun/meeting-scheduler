@@ -32,7 +32,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({ id, label, color, checked, o
           )}
         </div>
       </div>
-      <span className={`ml-3 font-bold text-base ${active ? 'text-gray-300' : 'text-gray-500'}`}>
+      <span className={`ml-3 font-semibold text-large ${active ? 'text-gray-300' : 'text-gray-500'}`}>
         {label}
       </span>
     </label>
