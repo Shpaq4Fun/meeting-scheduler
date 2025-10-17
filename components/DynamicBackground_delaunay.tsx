@@ -358,7 +358,7 @@ const DynamicBackground: React.FC = () => {
       // ctx.fillRect(0, 0, canvas.width, canvas.height);
       const gradient = ctx.createRadialGradient(canvas.width-20, canvas.height-2, 50, canvas.width-20, canvas.height, canvas.width*0.99)
       gradient.addColorStop(0, 'rgba(18, 30, 70)');
-      gradient.addColorStop(0.9, 'rgba(6, 9, 23)');
+      gradient.addColorStop(0.8, 'rgba(6, 9, 23)');
       gradient.addColorStop(1, 'rgba(6, 9, 35)');
       ctx.fillStyle = gradient; // Very dark blue
       ctx.fillRect(0, 0, canvas.width, canvas.height);
