@@ -15,6 +15,7 @@ const App: React.FC = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [proposedMeeting, setProposedMeeting] = useState<CalendarEvent | null>(null);
+  const [includeJitsiMeet, setIncludeJitsiMeet] = useState(false);
   const [currentWeekStartDate, setCurrentWeekStartDate] = useState(new Date());
   const [isSignedIn, setIsSignedIn] = useState(false);
   
@@ -60,29 +61,36 @@ const App: React.FC = () => {
 
   const handleGenerateCalendar = useCallback(async () => {
     try {
-      console.log('Fetching calendar events for users:', selectedUsers.map(u => u.name));
-      console.log('Week start date:', currentWeekStartDate);
+      // console.log('Fetching calendar events for users:', selectedUsers.map(u => u.name));
+      // console.log('Week start date:', currentWeekStartDate);
       const visibleEvents = await fetchEventsForUsers(selectedUsers, currentWeekStartDate);
-      console.log('Successfully fetched calendar data:', visibleEvents.length, 'events');
-      console.log('Events by user:', visibleEvents.reduce((acc, event) => {
-        acc[event.userId] = (acc[event.userId] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>));
+      // console.log('Successfully fetched calendar data:', visibleEvents.length, 'events');
+      // console.log('Events by user:', visibleEvents.reduce((acc, event) => {
+        // acc[event.userId] = (acc[event.userId] || 0) + 1;
+        // return acc;
+      // }, {} as Record<string, number>));
       setEvents(visibleEvents);
       setProposedMeeting(null);
     } catch (error) {
-      console.error('Failed to fetch calendar data:', error);
-      console.error('Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        status: (error as any)?.status,
-        code: (error as any)?.code
-      });
+      // console.error('Failed to fetch calendar data:', error);
+      // console.error('Error details:', {
+      //   message: error instanceof Error ? error.message : 'Unknown error',
+      //   status: (error as any)?.status,
+      //   code: (error as any)?.code
+      // });
       // Show empty state when API fails
       setEvents([]);
       setProposedMeeting(null);
     }
   }, [selectedUsers, currentWeekStartDate]);
-  
+
+  // Effect to regenerate calendar when user selection changes
+  useEffect(() => {
+    if (selectedUserIds.length > 0 && isSignedIn) {
+      handleGenerateCalendar();
+    }
+  }, [selectedUserIds, handleGenerateCalendar, isSignedIn]);
+
   const handleMeetingProposed = useCallback((slot: SuggestedSlot, title: string) => {
     const newMeeting: CalendarEvent = {
       id: `meeting-${Date.now()}`,
@@ -92,6 +100,7 @@ const App: React.FC = () => {
       userId: 'meeting-proposal', // Special ID for proposed meetings
     };
     setProposedMeeting(newMeeting);
+    setIncludeJitsiMeet(slot.includeGoogleMeet || false);
     setEvents(prev => [...prev.filter(e => e.id !== (proposedMeeting?.id || '')), newMeeting]);
     setIsModalOpen(false);
   },[proposedMeeting]);
@@ -185,7 +194,8 @@ const App: React.FC = () => {
             title: proposedMeeting.title,
             start: proposedMeeting.start,
             end: proposedMeeting.end,
-            description: `Meeting scheduled via DMC Meeting Scheduler with ${selectedUsers.map(u => u.name).join(', ')}`
+            description: `Meeting scheduled via DMC Meeting Scheduler with ${selectedUsers.map(u => u.name).join(', ')}`,
+            includeJitsiMeet
           },
           attendeeEmails,
           dmcUser.invitationCalId
@@ -223,7 +233,7 @@ const App: React.FC = () => {
           {/* Left Sidebar */}
           <aside className="w-full md:w-1/5 flex flex-col gap-1">
             <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
-            <p className="text-sm text-gray-300">1. Sign in with PWR Google account (required for GCal apps)</p>
+            <p className="text-sm text-gray-300">1. Sign in with PWR account (required for all GCal apps)</p>
             <p className="-mt-2 text-sm text-gray-300">2. Select users for the meeting and the correct week.</p>
             <p className="-mt-2 text-sm text-gray-300">3. Generate a calendar.</p>
             <p className="-mt-2 text-sm text-gray-300">4. Create a meeting proposition.</p>

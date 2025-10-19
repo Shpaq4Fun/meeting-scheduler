@@ -25,9 +25,9 @@ export const Controls: React.FC<ControlsProps> = ({
 }) => {
   return (
     <div className="flex flex-col gap-1 p-0 rounded-lg bg-[#1a202c]/0">
-      <Button onClick={onGenerateCalendar} disabled={isGenerateDisabled} className="text-3xl">
+      {/* <Button onClick={onGenerateCalendar} disabled={isGenerateDisabled} className="text-3xl">
         {isGenerateDisabled ? 'Sign in to Generate Calendar' : 'Generate Calendar'}
-      </Button>
+      </Button> */}
       <Button onClick={onCreateMeeting} disabled={isGenerateDisabled}>
         {isGenerateDisabled
           ? 'Sign in to Create Meeting'

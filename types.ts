@@ -18,10 +18,11 @@ export interface CalendarEvent {
 }
 
 export interface SuggestedSlot {
-  startTime: string;
-  endTime: string;
-  reason?: string;
-}
+   startTime: string;
+   endTime: string;
+   reason?: string;
+   includeGoogleMeet?: boolean;
+ }
 
 export interface Point {
   id: number;

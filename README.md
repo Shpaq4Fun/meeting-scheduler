@@ -18,15 +18,16 @@ An intelligent meeting scheduling application designed specifically for the **Di
 - **📅 Multi-Calendar Integration** - Fetches and displays events from multiple Google Calendars simultaneously
 - **👥 Multi-User Support** - Schedule meetings with multiple DMC team members
 - **📊 Visual Calendar** - Interactive weekly calendar view with color-coded users
-- **📧 Automated Invitations** - Send calendar invitations directly to selected participants
+- **📧 Automated Invitations** - Send calendar invitations with integrated Jitsi Meet video conferencing
+- **🎥 Jitsi Meet Integration** - Automatic generation of Jitsi Meet video conference links for all meetings
 - **🎨 Modern UI** - Clean, responsive design with dark theme
 
 
 ## 🛠️ Technology Stack
 
 - **Frontend**: React 19 + TypeScript + Vite
-- **AI Integration**: Google Gemini API (`@google/genai`)
 - **Calendar API**: Google Calendar API (`gapi-script`)
+- **Video Conferencing**: Jitsi Meet (no API keys required)
 - **Authentication**: Google OAuth 2.0
 - **Styling**: Tailwind CSS with custom dark theme
 - **Deployment**: GitHub Pages with automated workflows
@@ -37,7 +38,6 @@ An intelligent meeting scheduling application designed specifically for the **Di
 
 - **Node.js** (v16 or higher)
 - **PWR Google Account** for calendar access
-- **Gemini API Key** for AI-powered suggestions
 
 ### Local Development Setup
 
@@ -78,11 +78,14 @@ An intelligent meeting scheduling application designed specifically for the **Di
 1. **Select Participants**: Choose team members from the user selection panel
 2. **Choose Week**: Navigate to the desired week using calendar controls
 3. **Generate Calendar**: Click "Generate Calendar" to fetch all participants' events
-4. **Create Meeting**: Select a suggested time slot and create the meeting
-5. **Send Invitations**: Send calendar invitations to all selected participants
+4. **Create Meeting**: Click "Create Meeting" to open the draggable meeting creation modal
+5. **Configure Meeting**: Set title, date, time, duration, and optionally include Jitsi Meet video conferencing
+6. **Send Invitations**: Send calendar invitations with integrated Jitsi Meet links to all selected participants
 
 ### Advanced Features
 
+- **🎥 Jitsi Meet Integration**: Automatic generation of Jitsi Meet video conference URLs for all meetings
+- **🖱️ Draggable Interface**: Move the meeting creation modal by dragging its header for better positioning
 - **Color Coding**: Each user has a unique color for easy event identification
 - **Meeting Management**: Delete proposed meetings or cancel existing ones
 - **Real-time Updates**: Calendar refreshes automatically when users are added/removed
@@ -95,6 +98,7 @@ The application is currently deployed and running at:
 
 This live version includes:
 - ✅ Full functionality with Google Calendar integration
+- ✅ Jitsi Meet video conferencing integration
 - ✅ Real-time calendar synchronization
 - ✅ Automated deployment via GitHub Actions
 
@@ -106,13 +110,15 @@ meeting-scheduler/
 │   ├── CalendarView.tsx     # Main calendar display
 │   ├── UserSelection.tsx    # User picker interface
 │   ├── Controls.tsx         # Action buttons
-│   ├── CreateMeetingModal.tsx # Meeting creation dialog
-│   └── ...                  # Other UI components
+│   ├── CreateMeetingModal.tsx # Draggable meeting creation dialog
+│   ├── DynamicBackground_delaunay.tsx # Animated background
+│   └── Checkbox.tsx         # Custom checkbox component
 ├── services/            # API integrations
-│   ├── googleCalendarService.ts  # Google Calendar API
-│   ├── geminiService.ts         # Gemini AI integration
+│   ├── googleCalendarService.ts  # Google Calendar API + Jitsi integration
+│   ├── geminiService.ts         # Gemini AI (not integrated yet)
 │   └── googleAuthService.ts     # Authentication
 ├── types/               # TypeScript definitions
+│   └── gapi.d.ts            # Google API type definitions
 ├── constants.ts         # App configuration & user data
 ├── App.tsx             # Main application component
 └── vite.config.ts      # Build configuration

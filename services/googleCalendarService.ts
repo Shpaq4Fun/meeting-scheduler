@@ -2,6 +2,22 @@ import type { User, CalendarEvent } from '../types';
 import { initClient, getAccessToken } from './googleAuthService';
 
 /**
+ * Generates a Jitsi Meet meeting URL
+ * Jitsi Meet URLs use the pattern: https://meet.jit.si/room-name
+ */
+function generateJitsiMeetUrl(): string {
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let roomName = '';
+
+  // Generate a random 12-character room name
+  for (let i = 0; i < 12; i++) {
+    roomName += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  return `https://meet.jit.si/${roomName}`;
+}
+
+/**
  * Fetches calendar events for a list of users from the Google Calendar API.
  * 
  * @param users - An array of users to fetch events for.
@@ -159,10 +175,10 @@ export async function fetchEventsForUsers(
  * @returns A promise that resolves to the created event details.
  */
 export async function createCalendarEvent(
-  meeting: { title: string; start: Date; end: Date; description?: string },
-  attendees: string[],
-  targetCalendarId: string
-): Promise<any> {
+    meeting: { title: string; start: Date; end: Date; description?: string; includeJitsiMeet?: boolean },
+    attendees: string[],
+    targetCalendarId: string
+  ): Promise<any> {
   // Ensure Google API client is initialized
   try {
     await initClient();
@@ -187,7 +203,7 @@ export async function createCalendarEvent(
   }));
 
   // Create the event object
-  const event = {
+  const event: any = {
     summary: meeting.title,
     start: {
       dateTime: meeting.start.toISOString(),
@@ -203,14 +219,29 @@ export async function createCalendarEvent(
     sendUpdates: 'all' // This will send invitation emails to attendees
   };
 
+  // Add Jitsi Meet link if requested
+  if (meeting.includeJitsiMeet) {
+    const jitsiUrl = generateJitsiMeetUrl();
+
+    // Add Jitsi Meet URL to location and description
+    event.location = jitsiUrl;
+    if (meeting.description) {
+      event.description = meeting.description + '\n\nJoin the meeting: ' + jitsiUrl;
+    } else {
+      event.description = 'Join the meeting: ' + jitsiUrl;
+    }
+  }
+
   try {
     console.log('Creating calendar event:', {
-      title: meeting.title,
-      start: meeting.start,
-      end: meeting.end,
-      attendees: attendees,
-      calendarId: targetCalendarId
-    });
+       title: meeting.title,
+       start: meeting.start,
+       end: meeting.end,
+       attendees: attendees,
+       calendarId: targetCalendarId,
+       includeJitsiMeet: meeting.includeJitsiMeet,
+       jitsiUrl: meeting.includeJitsiMeet ? 'Will be generated' : 'Not included'
+     });
 
     const response = await window.gapi.client.calendar.events.insert({
       calendarId: targetCalendarId,
