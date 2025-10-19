@@ -235,9 +235,8 @@ const App: React.FC = () => {
             <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
             <p className="text-sm text-gray-300">1. Sign in with PWR account (required for all GCal apps)</p>
             <p className="-mt-2 text-sm text-gray-300">2. Select users for the meeting and the correct week.</p>
-            <p className="-mt-2 text-sm text-gray-300">3. Generate a calendar.</p>
-            <p className="-mt-2 text-sm text-gray-300">4. Create a meeting proposition.</p>
-            <p className="-mt-2 text-sm text-gray-300">5. Send invitations to the created meeting to selected users. The meeting is hosted on DMC calendar.</p>
+            <p className="-mt-2 text-sm text-gray-300">3. Create a meeting proposition.</p>
+            <p className="-mt-2 text-sm text-gray-300">4. Send invitations to the created meeting to selected users. The meeting is hosted on DMC calendar.</p>
             {/* Always show user selection */}
             <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
 

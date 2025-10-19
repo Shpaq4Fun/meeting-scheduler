@@ -174,7 +174,7 @@ export const CreateMeetingModal: React.FC<CreateMeetingModalProps> = ({ isOpen, 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full p-2 bg-gray-700 border border-gray-600 rounded"
-              placeholder="e.g., Project Phoenix Sync"
+              placeholder="e.g., Project Meeting"
             />
           </div>
           
@@ -232,7 +232,7 @@ export const CreateMeetingModal: React.FC<CreateMeetingModalProps> = ({ isOpen, 
                 </div>
               </div>
               <span className={`ml-3 font-semibold text-large`}>
-                Jitsi Meet
+                Online Meeting
               </span>
             </label>
             
