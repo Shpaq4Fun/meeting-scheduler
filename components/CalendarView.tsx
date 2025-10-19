@@ -52,9 +52,17 @@ const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, us
    console.log(`EventCard rendering: "${event.title}" - All-day: ${isAllDay}, Color: ${userColor}`);
 
    if (isAllDay) {
-     console.log(`RENDERING ALL-DAY EVENT: ${event.title} at top of day`);
+     console.log(`RENDERING ALL-DAY EVENT: ${event.title} at position top:${event.layout.top}rem`);
      return (
-       <div className={`absolute top-0 left-1 right-1 p-2 rounded-md text-xs font-semibold text-white ${userColor} z-20 border-2 border-white border-opacity-50`}>
+       <div
+         className={`absolute p-1 rounded-md text-xs font-semibold text-white ${userColor} z-20 border border-white border-opacity-30`}
+         style={{
+           top: `${event.layout.top}rem`,
+           height: `${event.layout.height}rem`,
+           left: `${event.layout.left}%`,
+           width: `calc(${event.layout.width}% - 2px)`,
+         }}
+       >
          📅 {event.title}
        </div>
      );
@@ -78,80 +86,122 @@ const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, us
    );
 };
 
-const processEventsForLayout = (dayEvents: CalendarEvent[]): ProcessedEvent[] => {
-    const timedEvents = dayEvents
-        .filter(event => {
-          const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
-          const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
-          const isAllDay = (event.start.getHours() === 0 && event.start.getMinutes() === 0 &&
-                           (event.end.getHours() === 23 && event.end.getMinutes() === 59)) ||
-                           (endDate > startDate);
-          return !isAllDay;
-        })
-        .sort((a, b) => a.start.getTime() - b.start.getTime());
+const processTimedEventsForLayout = (timedEvents: CalendarEvent[]): ProcessedEvent[] => {
+     if (timedEvents.length === 0) return [];
 
-    if (timedEvents.length === 0) return [];
+     const collisionGroups: CalendarEvent[][] = [];
+     if (timedEvents.length > 0) {
+         collisionGroups.push([timedEvents[0]]);
+         for (let i = 1; i < timedEvents.length; i++) {
+             const event = timedEvents[i];
+             const lastGroup = collisionGroups[collisionGroups.length - 1];
+             const maxEnd = Math.max(...lastGroup.map(e => e.end.getTime()));
 
-    const collisionGroups: CalendarEvent[][] = [];
-    if (timedEvents.length > 0) {
-        collisionGroups.push([timedEvents[0]]);
-        for (let i = 1; i < timedEvents.length; i++) {
-            const event = timedEvents[i];
-            const lastGroup = collisionGroups[collisionGroups.length - 1];
-            const maxEnd = Math.max(...lastGroup.map(e => e.end.getTime()));
+             if (event.start.getTime() < maxEnd) {
+                 lastGroup.push(event);
+             } else {
+                 collisionGroups.push([event]);
+             }
+         }
+     }
 
-            if (event.start.getTime() < maxEnd) {
-                lastGroup.push(event);
-            } else {
-                collisionGroups.push([event]);
-            }
-        }
-    }
+     const processedEvents: ProcessedEvent[] = [];
+     collisionGroups.forEach(group => {
+         const columns: (CalendarEvent & { colIndex: number })[][] = [];
+         group.sort((a,b) => a.start.getTime() - b.start.getTime());
 
-    const processedEvents: ProcessedEvent[] = [];
-    collisionGroups.forEach(group => {
-        const columns: (CalendarEvent & { colIndex: number })[][] = [];
-        group.sort((a,b) => a.start.getTime() - b.start.getTime());
+         group.forEach(event => {
+             let placed = false;
+             for (let i = 0; i < columns.length; i++) {
+                 const col = columns[i];
+                 const lastEventInCol = col[col.length - 1];
+                 if (event.start.getTime() >= lastEventInCol.end.getTime()) {
+                     col.push({ ...event, colIndex: i });
+                     placed = true;
+                     break;
+                 }
+             }
+             if (!placed) {
+                 columns.push([{ ...event, colIndex: columns.length }]);
+             }
+         });
 
-        group.forEach(event => {
-            let placed = false;
-            for (let i = 0; i < columns.length; i++) {
-                const col = columns[i];
-                const lastEventInCol = col[col.length - 1];
-                if (event.start.getTime() >= lastEventInCol.end.getTime()) {
-                    col.push({ ...event, colIndex: i });
-                    placed = true;
-                    break;
-                }
-            }
-            if (!placed) {
-                columns.push([{ ...event, colIndex: columns.length }]);
-            }
-        });
+         const totalColumns = columns.length;
+         columns.forEach(col => {
+             col.forEach(event => {
+                 const startHour = event.start.getHours() + event.start.getMinutes() / 60;
+                 const endHour = event.end.getHours() + event.end.getMinutes() / 60;
 
-        const totalColumns = columns.length;
-        columns.forEach(col => {
-            col.forEach(event => {
-                const startHour = event.start.getHours() + event.start.getMinutes() / 60;
-                const endHour = event.end.getHours() + event.end.getMinutes() / 60;
-                
-                if (startHour >= 19 || endHour <= 6) return;
+                 if (startHour >= 19 || endHour <= 6) return;
 
-                processedEvents.push({
-                    ...event,
-                    layout: {
-                        top: (startHour - 6) * 4 * 14,
-                        height: (endHour - startHour) * 4 * 14,
-                        left: (100 / totalColumns) * event.colIndex,
-                        width: 100 / totalColumns,
-                    },
-                });
-            });
-        });
-    });
-    
-    return processedEvents;
-};
+                 processedEvents.push({
+                     ...event,
+                     layout: {
+                         top: (startHour - 6) * 4 * 14,
+                         height: (endHour - startHour) * 4 * 14,
+                         left: (100 / totalColumns) * event.colIndex,
+                         width: 100 / totalColumns,
+                     },
+                 });
+             });
+         });
+     });
+
+     return processedEvents;
+ };
+
+const processAllDayEventsForLayout = (allDayEvents: CalendarEvent[]): ProcessedEvent[] => {
+     if (allDayEvents.length === 0) return [];
+
+     // Sort all-day events by start time
+     const sortedEvents = allDayEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
+
+     // Group overlapping all-day events
+     const collisionGroups: CalendarEvent[][] = [];
+     if (sortedEvents.length > 0) {
+         collisionGroups.push([sortedEvents[0]]);
+         for (let i = 1; i < sortedEvents.length; i++) {
+             const event = sortedEvents[i];
+             const lastGroup = collisionGroups[collisionGroups.length - 1];
+
+             // For all-day events, we consider them overlapping if they occur on the same day(s)
+             const eventStartDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
+             const eventEndDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
+
+             const lastEventInGroup = lastGroup[lastGroup.length - 1];
+             const lastEventStartDate = new Date(lastEventInGroup.start.getFullYear(), lastEventInGroup.start.getMonth(), lastEventInGroup.start.getDate());
+             const lastEventEndDate = new Date(lastEventInGroup.end.getFullYear(), lastEventInGroup.end.getMonth(), lastEventInGroup.end.getDate());
+
+             // Check if events overlap on any day
+             const hasOverlap = !(eventEndDate <= lastEventStartDate || eventStartDate >= lastEventEndDate);
+
+             if (hasOverlap) {
+                 lastGroup.push(event);
+             } else {
+                 collisionGroups.push([event]);
+             }
+         }
+     }
+
+     const processedEvents: ProcessedEvent[] = [];
+     collisionGroups.forEach(group => {
+         const totalEvents = group.length;
+
+         group.forEach((event, index) => {
+             processedEvents.push({
+                 ...event,
+                 layout: {
+                     top: index * 1.75, // Stack vertically with 2.5rem spacing
+                     height: 1.75, // Fixed height for all-day events
+                     left: 0,
+                     width: 100,
+                 },
+             });
+         });
+     });
+
+     return processedEvents;
+ };
 
 export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, startDate, setStartDate }) => {
   const userMap = usersById(users);
@@ -173,14 +223,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
 
   const processedEventsByDay = useMemo(() => {
     const eventsByDay: Record<string, CalendarEvent[]> = {};
-    
-    events.forEach(event => {
+
+    console.log(`Processing ${events.length} total events for calendar display`);
+
+    events.forEach((event, index) => {
        const dayKey = toYYYYMMDD(event.start);
        if (!eventsByDay[dayKey]) eventsByDay[dayKey] = [];
        eventsByDay[dayKey].push(event);
+       console.log(`  Event ${index + 1}: "${event.title}" -> Day ${dayKey} (User: ${event.userId})`);
 
        // For multi-day events, also add to subsequent days
-       // Use a simpler approach: if end date is more than 1 day after start date, it's multi-day
        const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
        const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
 
@@ -202,6 +254,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
        }
      });
 
+     // Log summary of events per day
+     Object.keys(eventsByDay).forEach(dayKey => {
+       console.log(`Day ${dayKey}: ${eventsByDay[dayKey].length} events`);
+     });
+
     const processed: Record<string, ProcessedEvent[]> = {};
     for (const dayKey in eventsByDay) {
         const dayEvents = eventsByDay[dayKey];
@@ -217,12 +274,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
           return isAllDayPrecise;
         });
 
-        console.log(`Processing day ${dayKey}: ${dayEvents.length} total events, ${allDayEvents.length} all-day events`);
+       console.log(`Processing day ${dayKey}: ${dayEvents.length} total events, ${allDayEvents.length} all-day events, ${dayEvents.length - allDayEvents.length} timed events`);
+
+       // Debug: Log each event being processed
+       dayEvents.forEach((event, index) => {
+         const isAllDay = allDayEvents.includes(event);
+         console.log(`  Event ${index + 1}: "${event.title}" - All-day: ${isAllDay}, User: ${event.userId}`);
+       });
+
+       // Process timed events (non-all-day events)
+       const timedEvents = dayEvents.filter(e => !allDayEvents.includes(e));
 
         processed[dayKey] = [
-            ...processEventsForLayout(dayEvents),
-            // Pass all-day events through with a default layout, they are handled separately
-            ...allDayEvents.map(e => ({...e, layout: {top:0, height:0, left:0, width:100}} as ProcessedEvent))
+            ...processTimedEventsForLayout(timedEvents),
+            ...processAllDayEventsForLayout(allDayEvents)
         ];
     }
     return processed;
@@ -269,11 +334,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
                 {HOURS.map((_, hourIndex) => (
                     <div key={hourIndex} className="h-14 border-b border-gray-500"></div>
                 ))}
-                {dayEvents
-                    .map(event => (
-                    <EventCard key={event.id} event={event} user={userMap[event.userId]} />
-                    ))
-                }
+                {dayEvents.length > 0 && (
+                    <>
+                        {dayEvents.map(event => (
+                            <EventCard key={`${event.id}-${event.userId}`} event={event} user={userMap[event.userId]} />
+                        ))}
+                    </>
+                )}
                 </div>
             );
           })}
