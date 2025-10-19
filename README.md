@@ -149,7 +149,7 @@ meeting-scheduler/
 
 ## 📝 License
 
-This project is developed for the Department of Machine Construction at Wrocław University of Science and Technology.
+This project is developed for the Digital Mining Center (DMC) at Wrocław University of Science and Technology.
 
 ## 🆘 Support
 
