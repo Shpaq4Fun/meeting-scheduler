@@ -18,7 +18,7 @@ export const USERS: User[] = [
   { id: 'user-9', name: 'Magdalena Worsa-Kozak', color: 'bg-teal-900', calendarId: 'magdalena.worsa-kozak@pwr.edu.pl', invitationCalId: 'magdalena.worsa-kozak@pwr.edu.pl', active: false },
   { id: 'user-10', name: 'Krzysztof Chudy', color: 'bg-cyan-500', calendarId: 'er9he18v7dp1mr61lvguvi9u1asd91uf@import.calendar.google.com', invitationCalId: 'krzysztof.chudy@pwr.edu.pl', active: true },
   { id: 'user-11', name: 'Aleksandra Banasiewicz', color: 'bg-pink-500', calendarId: 'hckb9hmhmunet207pr5cdlugl3k5qqb0@import.calendar.google.com' , invitationCalId: 'aleksandra.banasiewicz@pwr.edu.pl', active: true },
-  { id: 'user-12', name: 'Adam Wróblewski', color: 'bg-pink-700', calendarId: 'adam.wroblewski@pwr.edu.pl', invitationCalId: 'adam.wroblewski@pwr.edu.pl', active: false },
+  { id: 'user-12', name: 'Adam Wróblewski', color: 'bg-pink-700', calendarId: '36r52fb6iubje3kaicjmtk8vahah990g@import.calendar.google.com', invitationCalId: 'adam.wroblewski@pwr.edu.pl', active: true },
   { id: 'user-13', name: 'Magdalena Sitarska', color: 'bg-pink-900', calendarId: 'magdalena.sitarska@pwr.edu.pl', invitationCalId: 'magdalena.sitarska@pwr.edu.pl', active: false },
   { id: 'user-14', name: 'Kinga Romańczukiewicz', color: 'bg-teal-700', calendarId: 'kinga.romanczukiewicz@pwr.edu.pl', invitationCalId: 'kinga.romanczukiewicz@pwr.edu.pl', active: false },
   { id: 'user-15', name: 'Kamil Gromnicki', color: 'bg-purple-500', calendarId: 'kamil.gromnicki@pwr.edu.pl', invitationCalId: 'kamil.gromnicki@pwr.edu.pl', active: false },
