@@ -242,7 +242,7 @@ const App: React.FC = () => {
             <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
 
             
-
+            <div className="flex flex-col gap-4 px-7 rounded-lg bg-[#1a202c]/0">
             {/* Show sign-in button when not signed in */}
             {!isSignedIn && (
               <button style={{borderRadius: 25 + 'px'}} onClick={handleSignIn} className="bg-blue-950 py-3 text-xl hover:bg-blue-800 transition duration-300 text-white px-4 rounded-lg">
@@ -254,6 +254,7 @@ const App: React.FC = () => {
                 ✅ Authenticated
               </div>
             )}
+            
             {/* Show controls but disable when not signed in */}
             <Controls
               onGenerateCalendar={handleGenerateCalendar}
@@ -265,6 +266,7 @@ const App: React.FC = () => {
               hasProposedMeeting={!!proposedMeeting}
               hasConfirmedMeeting={events.some(e => e.userId === 'confirmed-meeting')}
             />
+            </div>
           </aside>
 
           {/* Right Content */}
