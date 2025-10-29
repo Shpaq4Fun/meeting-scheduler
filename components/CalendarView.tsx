@@ -285,9 +285,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
 }, [events]);
 
   return (
-    <div className="bg-[#1a202c]/0 rounded-lg p-2 h-full flex flex-col">
+    <div className="bg-[#1a202c]/0 rounded-lg p-0 h-full flex flex-col">
       <div className="flex justify-between items-center">
-        <button onClick={() => changeWeek(-1)} style={{borderRadius: 20 + 'px'}} className="px-4 py-2 text-3xl bg-blue-950 rounded hover:bg-blue-700 text-center">&lt;</button>
+        <button onClick={() => changeWeek(-1)} style={{borderRadius: 20 + 'px'}} className="px-4 py-1 text-3xl bg-blue-950 rounded hover:bg-blue-700 text-center">&lt;</button>
         <h2 className="text-4xl font-size-40px text-gray-300 font-100">
             {new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(startDate)}
         </h2>
