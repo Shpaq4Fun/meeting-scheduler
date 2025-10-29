@@ -28,7 +28,7 @@ export const Controls: React.FC<ControlsProps> = ({
       {/* <Button onClick={onGenerateCalendar} disabled={isGenerateDisabled} className="text-3xl">
         {isGenerateDisabled ? 'Sign in to Generate Calendar' : 'Generate Calendar'}
       </Button> */}
-      <Button onClick={onCreateMeeting} disabled={isGenerateDisabled}>
+      <Button style={{borderRadius: 25 + 'px'}} onClick={onCreateMeeting} disabled={isGenerateDisabled}>
         {isGenerateDisabled
           ? 'Sign in to Create Meeting'
           : hasConfirmedMeeting
@@ -41,7 +41,7 @@ export const Controls: React.FC<ControlsProps> = ({
       {/* <Button onClick={onProposeMeeting} disabled={isGenerateDisabled}>
         {isGenerateDisabled ? 'Sign in to Propose Meeting' : 'Propose Meeting'}
       </Button> */}
-      <Button onClick={onSendInvitation} disabled={isInvitationDisabled}>
+      <Button style={{borderRadius: 25 + 'px'}} onClick={onSendInvitation} disabled={isInvitationDisabled}>
         {isInvitationDisabled ? 'Create a meeting to invite' : 'Send Invitation'}
       </Button>
     </div>

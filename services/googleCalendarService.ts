@@ -68,101 +68,103 @@ export async function fetchEventsForUsers(
   let allEvents: CalendarEvent[] = [];
 
   for (const user of users) {
-    try {
-      console.log(`Fetching events for ${user.name} (${user.calendarId})`);
-      const res = await window.gapi.client.calendar.events.list({
-        calendarId: user.calendarId,
-        timeMin,
-        timeMax,
-        singleEvents: true,
-        orderBy: 'startTime',
-        maxResults: 100, // Increase from default 25
-        showDeleted: false,
-      });
+    for (const cal of user.calendarId) {
+      try {
+        console.log(`Fetching events for ${user.name} (${cal})`);
+        const res = await window.gapi.client.calendar.events.list({
+          calendarId: cal,
+          timeMin,
+          timeMax,
+          singleEvents: true,
+          orderBy: 'startTime',
+          maxResults: 100, // Increase from default 25
+          showDeleted: false,
+        });
 
-      console.log(`Found ${res.result.items?.length || 0} raw events for ${user.name}`);
+        console.log(`Found ${res.result.items?.length || 0} raw events for ${user.name}`);
 
-      const events = res.result.items;
-      if (events && events.length) {
-        const userEvents: CalendarEvent[] = events
-          .map((event: any) => {
-            if (!event.id || !event.summary) {
-              console.warn('Skipping event with missing id or summary:', event);
-              return null;
-            }
+        const events = res.result.items;
+        if (events && events.length) {
+          const userEvents: CalendarEvent[] = events
+            .map((event: any) => {
+              if (!event.id || !event.summary) {
+                console.warn('Skipping event with missing id or summary:', event);
+                return null;
+              }
 
-            // Better all-day event detection
-            const isAllDay = !event.start.dateTime && event.start.date;
-            const startDate = isAllDay
-              ? new Date(event.start.date + 'T00:00:00.000Z')
-              : new Date(event.start.dateTime);
+              // Better all-day event detection
+              const isAllDay = !event.start.dateTime && event.start.date;
+              const startDate = isAllDay
+                ? new Date(event.start.date + 'T00:00:00.000Z')
+                : new Date(event.start.dateTime);
 
-            let endDate = isAllDay
-              ? new Date(event.end.date + 'T23:59:59.999Z')
-              : new Date(event.end.dateTime);
+              let endDate = isAllDay
+                ? new Date(event.end.date + 'T23:59:59.999Z')
+                : new Date(event.end.dateTime);
 
-            // Fix for Google Calendar API all-day events ending one day later
-            if (isAllDay && event.end.date) {
-              const endDateObj = new Date(event.end.date);
-              endDateObj.setDate(endDateObj.getDate()); // Subtract 1 day
-              endDate = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), endDateObj.getDate(), 23, 59, 59, 999);
-            }
+              // Fix for Google Calendar API all-day events ending one day later
+              if (isAllDay && event.end.date) {
+                const endDateObj = new Date(event.end.date);
+                endDateObj.setDate(endDateObj.getDate()); // Subtract 1 day
+                endDate = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), endDateObj.getDate(), 23, 59, 59, 999);
+              }
 
-            console.log('Processing event:', {
-              id: event.id,
-              title: event.summary,
-              isAllDay,
-              start: startDate.toISOString(),
-              end: endDate.toISOString(),
-              startInRange: startDate >= startOfWeek && startDate < endOfWeek,
-              endInRange: endDate >= startOfWeek && endDate < endOfWeek,
-              duration: endDate.getTime() - startDate.getTime(),
-              daysDifference: Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000))
-            });
-
-            // Special logging for multi-day events
-            if (Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)) > 1) {
-              console.log('MULTI-DAY EVENT DETECTED:', {
+              console.log('Processing event:', {
+                id: event.id,
                 title: event.summary,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                span: `${Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000))} days`
+                isAllDay,
+                start: startDate.toISOString(),
+                end: endDate.toISOString(),
+                startInRange: startDate >= startOfWeek && startDate < endOfWeek,
+                endInRange: endDate >= startOfWeek && endDate < endOfWeek,
+                duration: endDate.getTime() - startDate.getTime(),
+                daysDifference: Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000))
               });
-            }
 
-            return {
-              id: event.id,
-              title: event.summary,
-              start: startDate,
-              end: endDate,
-              userId: user.id,
-            };
-          })
-          .filter((event): event is CalendarEvent => event !== null);
-        allEvents = allEvents.concat(userEvents);
-      }
-    } catch (err: any) {
-      console.error(`Failed to fetch events for ${user.name}:`, err);
-      console.error(`Calendar ID: ${user.calendarId}`);
-      console.error(`Error details:`, {
-        message: err.message,
-        status: err.status,
-        code: err.code,
-        stack: err.stack
-      });
+              // Special logging for multi-day events
+              if (Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)) > 1) {
+                console.log('MULTI-DAY EVENT DETECTED:', {
+                  title: event.summary,
+                  startDate: startDate.toISOString(),
+                  endDate: endDate.toISOString(),
+                  span: `${Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000))} days`
+                });
+              }
 
-      // Provide more specific error messages based on error type
-      if (err.status === 403) {
-        console.error(`403 Forbidden: Check if the API key is valid and calendar is shared properly`);
-      } else if (err.status === 400) {
-        console.error(`400 Bad Request: Check calendar ID format and API parameters`);
-      } else if (err.status === 401) {
-        console.error(`401 Unauthorized: Check authentication and API key permissions`);
+              return {
+                id: event.id,
+                title: event.summary,
+                start: startDate,
+                end: endDate,
+                userId: user.id,
+              };
+            })
+            .filter((event): event is CalendarEvent => event !== null);
+          allEvents = allEvents.concat(userEvents);
+        }
+      } catch (err: any) {
+        console.error(`Failed to fetch events for ${user.name}:`, err);
+        console.error(`Calendar ID: ${cal}`);
+        console.error(`Error details:`, {
+          message: err.message,
+          status: err.status,
+          code: err.code,
+          stack: err.stack
+        });
+
+        // Provide more specific error messages based on error type
+        if (err.status === 403) {
+          console.error(`403 Forbidden: Check if the API key is valid and calendar is shared properly`);
+        } else if (err.status === 400) {
+          console.error(`400 Bad Request: Check calendar ID format and API parameters`);
+        } else if (err.status === 401) {
+          console.error(`401 Unauthorized: Check authentication and API key permissions`);
+        }
       }
     }
   }
   
-   return allEvents;
+  return allEvents;
 }
 
 

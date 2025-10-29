@@ -33,175 +33,166 @@ const toYYYYMMDD = (date: Date): string => {
 };
 
 const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, user }) => {
-   // Use green color for confirmed meetings, otherwise use user color or default
-   const userColor = event.userId === 'confirmed-meeting'
-     ? 'bg-green-600'
-     : user?.color || 'bg-fuchsia-600';
-   const timeFormat = new Intl.DateTimeFormat('pl-PL', { hour: '2-digit', minute: '2-digit' });
+  // Use green color for confirmed meetings, otherwise use user color or default
+  const userColor = event.userId === 'confirmed-meeting'
+    ? 'bg-green-600'
+    : user?.color || 'bg-fuchsia-600';
+  const timeFormat = new Intl.DateTimeFormat('pl-PL', { hour: '2-digit', minute: '2-digit' });
 
    // Handle all-day events (check if it's a full day event spanning from midnight to midnight)
    // Also check for events that end at 23:59 (without seconds) or are multi-day
-   const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
-   const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
+  const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
+  const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
 
-   const isAllDay = (event.start.getHours() === 0 && event.start.getMinutes() === 0 &&
+  const isAllDay = (event.start.getHours() === 0 && event.start.getMinutes() === 0 &&
                     (event.end.getHours() === 23 && event.end.getMinutes() === 59)) ||
                     // Multi-day events (end date is after start date)
                     (endDate > startDate);
 
-   console.log(`EventCard rendering: "${event.title}" - All-day: ${isAllDay}, Color: ${userColor}`);
+  console.log(`EventCard rendering: "${event.title}" - All-day: ${isAllDay}, Color: ${userColor}`);
 
-   if (isAllDay) {
-     console.log(`RENDERING ALL-DAY EVENT: ${event.title} at position top:${event.layout.top}rem`);
-     return (
-       <div
-         className={`absolute p-1 rounded-md text-xs font-semibold text-white ${userColor} z-20 border border-white border-opacity-30`}
-         style={{
-           top: `${event.layout.top}rem`,
-           height: `${event.layout.height}rem`,
-           left: `${event.layout.left}%`,
-           width: `calc(${event.layout.width}% - 2px)`,
-         }}
-       >
-         📅 {event.title}
-       </div>
-     );
-   }
+  if (isAllDay) {
+    console.log(`RENDERING ALL-DAY EVENT: ${event.title} at position top:${event.layout.top}rem`);
+    return (
+      <div
+        className={`absolute p-1 rounded-md text-xs font-semibold text-white ${userColor}/80 z-20 border border-white border-opacity-30`}
+        style={{
+          top: `${event.layout.top}rem`,
+          height: `${event.layout.height}rem`,
+          left: `${event.layout.left}%`,
+          width: `calc(${event.layout.width}% - 2px)`,
+        }}
+      >
+        📅 {event.title}
+      </div>
+    );
+  }
 
-   return (
-     <div
-       className={`absolute p-1 rounded-md text-xs text-gray-200 ${userColor} overflow-hidden z-10 background-image-[%linear-gradient(105deg,rgb(0 249 255 / 100%) 39%, rgb(51 56 57 / 100%) 96%);%]`}
-       style={{
-         top: `${event.layout.top / 16}rem`,
-         height: `${event.layout.height / 16}rem`,
-         left: `${event.layout.left}%`,
-         width: `calc(${event.layout.width}% - 1px)`,
-         minHeight: '2rem',
-       }}
-     >
-       <p className="font-bold">{event.title}</p>
-       <p>{timeFormat.format(event.start)} - {timeFormat.format(event.end)}</p>
-       {user && <p className="text-gray-200 text-[10px]">{user.name}</p>}
-     </div>
-   );
+  return (
+    <div
+      className={`absolute p-1 rounded-md text-xs text-gray-200 ${userColor}/80 overflow-hidden z-10 background-image-[%linear-gradient(105deg,rgb(0 249 255 / 100%) 39%, rgb(51 56 57 / 100%) 96%);%]`}
+      style={{
+        top: `${event.layout.top / 16}rem`,
+        height: `${event.layout.height / 16}rem`,
+        left: `${event.layout.left}%`,
+        width: `calc(${event.layout.width}% - 1px)`,
+        minHeight: '2rem',
+      }}
+    >
+      <p className="font-bold">{event.title}</p>
+      <p>{timeFormat.format(event.start)} - {timeFormat.format(event.end)}</p>
+      {user && <p className="text-gray-200 text-[10px]">{user.name}</p>}
+    </div>
+  );
 };
 
 const processTimedEventsForLayout = (timedEvents: CalendarEvent[]): ProcessedEvent[] => {
-     if (timedEvents.length === 0) return [];
+    if (timedEvents.length === 0) return [];
 
-     const collisionGroups: CalendarEvent[][] = [];
-     if (timedEvents.length > 0) {
-         collisionGroups.push([timedEvents[0]]);
-         for (let i = 1; i < timedEvents.length; i++) {
-             const event = timedEvents[i];
-             const lastGroup = collisionGroups[collisionGroups.length - 1];
-             const maxEnd = Math.max(...lastGroup.map(e => e.end.getTime()));
+    // Sort events by start time, then by duration (longer events first)
+    const sortedEvents = timedEvents.sort((a, b) => {
+        if (a.start.getTime() !== b.start.getTime()) {
+            return a.start.getTime() - b.start.getTime();
+        }
+        return b.end.getTime() - a.end.getTime();
+    });
 
-             if (event.start.getTime() < maxEnd) {
-                 lastGroup.push(event);
-             } else {
-                 collisionGroups.push([event]);
-             }
-         }
-     }
+    // This will hold the layout information for each event
+    const layoutInfo: { event: CalendarEvent, col: number, totalCols: number }[] = [];
 
-     const processedEvents: ProcessedEvent[] = [];
-     collisionGroups.forEach(group => {
-         const columns: (CalendarEvent & { colIndex: number })[][] = [];
-         group.sort((a,b) => a.start.getTime() - b.start.getTime());
+    for (const event of sortedEvents) {
+        const overlapping = layoutInfo.filter(
+            e => e.event.end.getTime() > event.start.getTime() && e.event.start.getTime() < event.end.getTime()
+        );
 
-         group.forEach(event => {
-             let placed = false;
-             for (let i = 0; i < columns.length; i++) {
-                 const col = columns[i];
-                 const lastEventInCol = col[col.length - 1];
-                 if (event.start.getTime() >= lastEventInCol.end.getTime()) {
-                     col.push({ ...event, colIndex: i });
-                     placed = true;
-                     break;
-                 }
-             }
-             if (!placed) {
-                 columns.push([{ ...event, colIndex: columns.length }]);
-             }
-         });
+        const usedCols = new Set(overlapping.map(e => e.col));
 
-         const totalColumns = columns.length;
-         columns.forEach(col => {
-             col.forEach(event => {
-                 const startHour = event.start.getHours() + event.start.getMinutes() / 60;
-                 const endHour = event.end.getHours() + event.end.getMinutes() / 60;
+        let currentCol = 0;
+        while (usedCols.has(currentCol)) {
+            currentCol++;
+        }
 
-                 if (startHour >= 19 || endHour <= 6) return;
+        const newEntry = { event, col: currentCol, totalCols: 1 };
+        layoutInfo.push(newEntry);
 
-                 processedEvents.push({
-                     ...event,
-                     layout: {
-                         top: (startHour - 6) * 4 * 14,
-                         height: (endHour - startHour) * 4 * 14,
-                         left: (100 / totalColumns) * event.colIndex,
-                         width: 100 / totalColumns,
-                     },
-                 });
-             });
-         });
-     });
+        const allInvolved = [...overlapping, newEntry];
+        const maxCols = allInvolved.reduce((max, e) => Math.max(max, e.col + 1), 0);
 
-     return processedEvents;
- };
+        allInvolved.forEach(e => {
+            e.totalCols = Math.max(e.totalCols, maxCols);
+        });
+    }
+
+    return layoutInfo.map(({ event, col, totalCols }) => {
+        const startHour = event.start.getHours() + event.start.getMinutes() / 60;
+        const endHour = event.end.getHours() + event.end.getMinutes() / 60;
+
+        if (startHour >= 19 || endHour <= 6) return null;
+
+        return {
+            ...event,
+            layout: {
+                top: (startHour - 6) * 4 * 14,
+                height: (endHour - startHour) * 4 * 14,
+                left: (100 / totalCols) * col,
+                width: 100 / totalCols,
+            },
+        };
+    }).filter((e): e is ProcessedEvent => e !== null);
+};
 
 const processAllDayEventsForLayout = (allDayEvents: CalendarEvent[]): ProcessedEvent[] => {
-     if (allDayEvents.length === 0) return [];
+    if (allDayEvents.length === 0) return [];
 
-     // Sort all-day events by start time
-     const sortedEvents = allDayEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
+    // Sort all-day events by start time
+    const sortedEvents = allDayEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
 
-     // Group overlapping all-day events
-     const collisionGroups: CalendarEvent[][] = [];
-     if (sortedEvents.length > 0) {
-         collisionGroups.push([sortedEvents[0]]);
-         for (let i = 1; i < sortedEvents.length; i++) {
-             const event = sortedEvents[i];
-             const lastGroup = collisionGroups[collisionGroups.length - 1];
+    // Group overlapping all-day events
+    const collisionGroups: CalendarEvent[][] = [];
+    if (sortedEvents.length > 0) {
+        collisionGroups.push([sortedEvents[0]]);
+        for (let i = 1; i < sortedEvents.length; i++) {
+            const event = sortedEvents[i];
+            const lastGroup = collisionGroups[collisionGroups.length - 1];
 
-             // For all-day events, we consider them overlapping if they occur on the same day(s)
-             const eventStartDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
-             const eventEndDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
+            // For all-day events, we consider them overlapping if they occur on the same day(s)
+            const eventStartDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
+            const eventEndDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
 
-             const lastEventInGroup = lastGroup[lastGroup.length - 1];
-             const lastEventStartDate = new Date(lastEventInGroup.start.getFullYear(), lastEventInGroup.start.getMonth(), lastEventInGroup.start.getDate());
-             const lastEventEndDate = new Date(lastEventInGroup.end.getFullYear(), lastEventInGroup.end.getMonth(), lastEventInGroup.end.getDate());
+            const lastEventInGroup = lastGroup[lastGroup.length - 1];
+            const lastEventStartDate = new Date(lastEventInGroup.start.getFullYear(), lastEventInGroup.start.getMonth(), lastEventInGroup.start.getDate());
+            const lastEventEndDate = new Date(lastEventInGroup.end.getFullYear(), lastEventInGroup.end.getMonth(), lastEventInGroup.end.getDate());
 
-             // Check if events overlap on any day
-             const hasOverlap = !(eventEndDate <= lastEventStartDate || eventStartDate >= lastEventEndDate);
+            // Check if events overlap on any day
+            const hasOverlap = !(eventEndDate <= lastEventStartDate || eventStartDate >= lastEventEndDate);
 
-             if (hasOverlap) {
-                 lastGroup.push(event);
-             } else {
-                 collisionGroups.push([event]);
-             }
-         }
-     }
+            if (hasOverlap) {
+                lastGroup.push(event);
+            } else {
+                collisionGroups.push([event]);
+            }
+        }
+    }
 
-     const processedEvents: ProcessedEvent[] = [];
-     collisionGroups.forEach(group => {
-         const totalEvents = group.length;
+    const processedEvents: ProcessedEvent[] = [];
+    collisionGroups.forEach(group => {
+        const totalEvents = group.length;
 
-         group.forEach((event, index) => {
-             processedEvents.push({
-                 ...event,
-                 layout: {
-                     top: index * 1.75, // Stack vertically with 2.5rem spacing
-                     height: 1.75, // Fixed height for all-day events
-                     left: 0,
-                     width: 100,
-                 },
-             });
-         });
-     });
+        group.forEach((event, index) => {
+            processedEvents.push({
+                ...event,
+                layout: {
+                    top: index * 1.75, // Stack vertically with 2.5rem spacing
+                    height: 1.75, // Fixed height for all-day events
+                    left: 0,
+                    width: 100,
+                },
+            });
+        });
+    });
 
-     return processedEvents;
- };
+    return processedEvents;
+};
 
 export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, startDate, setStartDate }) => {
   const userMap = usersById(users);
@@ -227,37 +218,37 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
     console.log(`Processing ${events.length} total events for calendar display`);
 
     events.forEach((event, index) => {
-       const dayKey = toYYYYMMDD(event.start);
-       if (!eventsByDay[dayKey]) eventsByDay[dayKey] = [];
-       eventsByDay[dayKey].push(event);
-       console.log(`  Event ${index + 1}: "${event.title}" -> Day ${dayKey} (User: ${event.userId})`);
+      const dayKey = toYYYYMMDD(event.start);
+      if (!eventsByDay[dayKey]) eventsByDay[dayKey] = [];
+      eventsByDay[dayKey].push(event);
+      console.log(`  Event ${index + 1}: "${event.title}" -> Day ${dayKey} (User: ${event.userId})`);
 
        // For multi-day events, also add to subsequent days
-       const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
-       const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
+      const startDate = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
+      const endDate = new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate());
 
        // Check if this is actually a multi-day event (end date > start date)
-       if (endDate > startDate) {
-         console.log(`Multi-day event "${event.title}" from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}, adding to days in between`);
+      if (endDate > startDate) {
+        console.log(`Multi-day event "${event.title}" from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}, adding to days in between`);
 
          // Add to each day between start and end (not including start, which is already added)
-         let currentDate = new Date(startDate);
+        let currentDate = new Date(startDate);
          currentDate.setDate(currentDate.getDate() + 1); // Start from next day
 
-         while (currentDate < endDate) {
-           const nextDayKey = toYYYYMMDD(currentDate);
-           if (!eventsByDay[nextDayKey]) eventsByDay[nextDayKey] = [];
-           eventsByDay[nextDayKey].push(event);
-           console.log(`  Added to ${nextDayKey}`);
-           currentDate.setDate(currentDate.getDate() + 1);
-         }
-       }
-     });
+        while (currentDate < endDate) {
+          const nextDayKey = toYYYYMMDD(currentDate);
+          if (!eventsByDay[nextDayKey]) eventsByDay[nextDayKey] = [];
+          eventsByDay[nextDayKey].push(event);
+          console.log(`  Added to ${nextDayKey}`);
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      }
+    });
 
-     // Log summary of events per day
-     Object.keys(eventsByDay).forEach(dayKey => {
-       console.log(`Day ${dayKey}: ${eventsByDay[dayKey].length} events`);
-     });
+    // Log summary of events per day
+    Object.keys(eventsByDay).forEach(dayKey => {
+      console.log(`Day ${dayKey}: ${eventsByDay[dayKey].length} events`);
+    });
 
     const processed: Record<string, ProcessedEvent[]> = {};
     for (const dayKey in eventsByDay) {
@@ -274,21 +265,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
           return isAllDayPrecise;
         });
 
-       console.log(`Processing day ${dayKey}: ${dayEvents.length} total events, ${allDayEvents.length} all-day events, ${dayEvents.length - allDayEvents.length} timed events`);
+      console.log(`Processing day ${dayKey}: ${dayEvents.length} total events, ${allDayEvents.length} all-day events, ${dayEvents.length - allDayEvents.length} timed events`);
 
-       // Debug: Log each event being processed
-       dayEvents.forEach((event, index) => {
-         const isAllDay = allDayEvents.includes(event);
-         console.log(`  Event ${index + 1}: "${event.title}" - All-day: ${isAllDay}, User: ${event.userId}`);
-       });
+      // Debug: Log each event being processed
+      dayEvents.forEach((event, index) => {
+        const isAllDay = allDayEvents.includes(event);
+        console.log(`  Event ${index + 1}: "${event.title}" - All-day: ${isAllDay}, User: ${event.userId}`);
+      });
 
        // Process timed events (non-all-day events)
-       const timedEvents = dayEvents.filter(e => !allDayEvents.includes(e));
+      const timedEvents = dayEvents.filter(e => !allDayEvents.includes(e));
 
-        processed[dayKey] = [
-            ...processTimedEventsForLayout(timedEvents),
-            ...processAllDayEventsForLayout(allDayEvents)
-        ];
+      processed[dayKey] = [
+          ...processTimedEventsForLayout(timedEvents),
+          ...processAllDayEventsForLayout(allDayEvents)
+      ];
     }
     return processed;
 }, [events]);
@@ -296,11 +287,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, users, start
   return (
     <div className="bg-[#1a202c]/0 rounded-lg p-2 h-full flex flex-col">
       <div className="flex justify-between items-center">
-        <button onClick={() => changeWeek(-1)} className="px-3 py-0 text-2xl bg-blue-950 rounded hover:bg-blue-700">&lt;</button>
-        <h2 className="text-3xl font-bold font-size-40px text-gray-300">
+        <button onClick={() => changeWeek(-1)} style={{borderRadius: 20 + 'px'}} className="px-4 py-2 text-3xl bg-blue-950 rounded hover:bg-blue-700 text-center">&lt;</button>
+        <h2 className="text-4xl font-size-40px text-gray-300 font-100">
             {new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(startDate)}
         </h2>
-        <button onClick={() => changeWeek(1)} className="px-3 py-0 text-2xl bg-blue-950 rounded hover:bg-blue-700">&gt;</button>
+        <button onClick={() => changeWeek(1)} style={{borderRadius: 20 + 'px'}} className="px-4 py-2 text-3xl bg-blue-950 rounded hover:bg-blue-700">&gt;</button>
       </div>
       <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,1fr] -mr-2">
         {/* Header */}

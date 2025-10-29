@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   color: string;
-  calendarId: string;
+  calendarId: string[];
   invitationCalId?: string;
   active?: boolean;
 }
@@ -18,11 +18,11 @@ export interface CalendarEvent {
 }
 
 export interface SuggestedSlot {
-   startTime: string;
-   endTime: string;
-   reason?: string;
-   includeGoogleMeet?: boolean;
- }
+  startTime: string;
+  endTime: string;
+  reason?: string;
+  includeGoogleMeet?: boolean;
+}
 
 export interface Point {
   id: number;

@@ -226,10 +226,11 @@ const App: React.FC = () => {
 
   return (
     
-    <div className="bg-[#1a202c] text-gray-200 p-2 font-sans flex-col flex-row">
+    <div className="text-gray-200 p-2 font-sans flex-col flex-row">
       {/* <div className="border h-full border-blue-600 rounded-lg p-4 bg-[#1a202c]"> */}
-        <DynamicBackground />
-        <div className="flex flex-col md:flex-row gap-2 h-full relative">
+        {/* <DynamicBackground /> */}
+        {/* <DynamicBackground selectedUserIds={selectedUserIds} /> */}
+        <div className="flex flex-col md:flex-row gap-2 h-full relative bg-blue-800/0">
           {/* Left Sidebar */}
           <aside className="w-full md:w-1/5 flex flex-col gap-1">
             <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
@@ -244,12 +245,12 @@ const App: React.FC = () => {
 
             {/* Show sign-in button when not signed in */}
             {!isSignedIn && (
-              <button onClick={handleSignIn} className="bg-blue-950 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white font-bold px-4 rounded-lg">
+              <button style={{borderRadius: 25 + 'px'}} onClick={handleSignIn} className="bg-blue-950 py-3 text-xl hover:bg-blue-800 transition duration-300 text-white px-4 rounded-lg">
                 Sign In with Google
               </button>
             )}
             {isSignedIn && (
-              <div className="bg-green-800 py-2 text-xl text-white font-bold px-4 rounded-lg text-center">
+              <div style={{borderRadius: 25 + 'px'}} className="bg-green-800 py-3 text-xl text-white font-bold px-4 rounded-lg text-center">
                 ✅ Authenticated
               </div>
             )}
