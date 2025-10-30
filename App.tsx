@@ -230,9 +230,9 @@ const App: React.FC = () => {
       {/* <div className="border h-full border-blue-600 rounded-lg p-4 bg-[#1a202c]"> */}
         {/* <DynamicBackground /> */}
         {/* <DynamicBackground selectedUserIds={selectedUserIds} /> */}
-        <div className="flex flex-col md:flex-row gap-2 h-full relative bg-blue-800/0">
+        <div className="flex flex-col md:flex-row gap-1 h-full relative bg-blue-800/0">
           {/* Left Sidebar */}
-          <aside className="w-full md:w-1/5 flex flex-col gap-1">
+          <aside className=" w-full md:w-1/5 flex flex-col gap-2">
             <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
             <p className="text-sm text-gray-300">1. Sign in with PWR account (required for all GCal apps)</p>
             <p className="-mt-2 text-sm text-gray-300">2. Select users for the meeting and the correct week.</p>
@@ -242,15 +242,15 @@ const App: React.FC = () => {
             <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
 
             
-            <div className="flex flex-col gap-4 px-7 rounded-lg bg-[#1a202c]/0">
+            <div style={{margin: 0 + ' auto'}} className=" flex flex-col gap-4 py-1 rounded-lg bg-[#1a202c]/0">
             {/* Show sign-in button when not signed in */}
             {!isSignedIn && (
-              <button style={{borderRadius: 25 + 'px'}} onClick={handleSignIn} className="bg-blue-950 py-3 text-xl hover:bg-blue-800 transition duration-300 text-white px-4 rounded-lg">
+              <button style={{position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} onClick={handleSignIn} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 py-3 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
                 Sign In with Google
               </button>
             )}
             {isSignedIn && (
-              <div style={{borderRadius: 25 + 'px'}} className="bg-green-800 py-3 text-xl text-white font-bold px-4 rounded-lg text-center">
+              <div style={{maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} className="bg-gradient-to-r from-green-500 via-green-600 to-green-700 py-3 text-xl text-white font-bold px-4 rounded-lg text-center border border-green-300">
                 ✅ Authenticated
               </div>
             )}

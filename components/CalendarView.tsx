@@ -55,7 +55,7 @@ const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, us
     console.log(`RENDERING ALL-DAY EVENT: ${event.title} at position top:${event.layout.top}rem`);
     return (
       <div
-        className={`absolute p-1 rounded-md text-xs font-semibold text-white ${userColor}/80 z-20 border border-white border-opacity-30`}
+        className={`absolute p-1 rounded-md text-xs font-semibold text-white ${userColor}/90 z-20 border border-white border-opacity-30`}
         style={{
           top: `${event.layout.top}rem`,
           height: `${event.layout.height}rem`,
@@ -70,7 +70,7 @@ const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, us
 
   return (
     <div
-      className={`absolute p-1 rounded-md text-xs text-gray-200 ${userColor}/80 overflow-hidden z-10 background-image-[%linear-gradient(105deg,rgb(0 249 255 / 100%) 39%, rgb(51 56 57 / 100%) 96%);%]`}
+      className={`absolute p-1 rounded-md text-xs text-gray-200 ${userColor}/90 overflow-hidden z-10 background-image-[%linear-gradient(105deg,rgb(0 249 255 / 100%) 39%, rgb(51 56 57 / 100%) 96%);%]`}
       style={{
         top: `${event.layout.top / 16}rem`,
         height: `${event.layout.height / 16}rem`,
