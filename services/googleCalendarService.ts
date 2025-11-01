@@ -236,14 +236,14 @@ export async function createCalendarEvent(
 
   try {
     console.log('Creating calendar event:', {
-       title: meeting.title,
-       start: meeting.start,
-       end: meeting.end,
-       attendees: attendees,
-       calendarId: targetCalendarId,
-       includeJitsiMeet: meeting.includeJitsiMeet,
-       jitsiUrl: meeting.includeJitsiMeet ? 'Will be generated' : 'Not included'
-     });
+      title: meeting.title,
+      start: meeting.start,
+      end: meeting.end,
+      attendees: attendees,
+      calendarId: targetCalendarId,
+      includeJitsiMeet: meeting.includeJitsiMeet,
+      jitsiUrl: meeting.includeJitsiMeet ? 'Will be generated' : 'Not included'
+    });
 
     const response = await window.gapi.client.calendar.events.insert({
       calendarId: targetCalendarId,

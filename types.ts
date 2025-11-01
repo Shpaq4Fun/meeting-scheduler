@@ -22,6 +22,7 @@ export interface SuggestedSlot {
   endTime: string;
   reason?: string;
   includeGoogleMeet?: boolean;
+  message?: string;
 }
 
 export interface Point {

@@ -91,13 +91,14 @@ const App: React.FC = () => {
     }
   }, [selectedUserIds, handleGenerateCalendar, isSignedIn]);
 
-  const handleMeetingProposed = useCallback((slot: SuggestedSlot, title: string) => {
+  const handleMeetingProposed = useCallback((slot: SuggestedSlot, title: string, message?: string) => {
     const newMeeting: CalendarEvent = {
       id: `meeting-${Date.now()}`,
       title: title,
       start: new Date(slot.startTime),
       end: new Date(slot.endTime),
       userId: 'meeting-proposal', // Special ID for proposed meetings
+      description: message,
     };
     setProposedMeeting(newMeeting);
     setIncludeJitsiMeet(slot.includeGoogleMeet || false);
@@ -189,12 +190,16 @@ const App: React.FC = () => {
         });
 
         // Create the calendar event and send invitations
+        const meetingDescription = proposedMeeting.description 
+          ? `${proposedMeeting.description}\n\nMeeting scheduled via DMC Meeting Scheduler with ${selectedUsers.map(u => u.name).join(', ')}`
+          : `Meeting scheduled via DMC Meeting Scheduler with ${selectedUsers.map(u => u.name).join(', ')}`;
+        
         const createdEvent = await createCalendarEvent(
           {
             title: proposedMeeting.title,
             start: proposedMeeting.start,
             end: proposedMeeting.end,
-            description: `Meeting scheduled via DMC Meeting Scheduler with ${selectedUsers.map(u => u.name).join(', ')}`,
+            description: meetingDescription,
             includeJitsiMeet
           },
           attendeeEmails,
@@ -212,7 +217,11 @@ const App: React.FC = () => {
         setProposedMeeting(null);
 
         // Show success message with event details
-        alert(`✅ Invitation sent successfully!\n\nMeeting: "${proposedMeeting.title}"\nTime: ${proposedMeeting.start.toLocaleString()}\nAttendees: ${selectedUsers.map(u => u.name).join(', ')}\n\nParticipants will receive calendar invitations via email.`);
+        const meetingInfo = proposedMeeting.description 
+          ? `Message: "${proposedMeeting.description}"\n`
+          : '';
+        
+        alert(`✅ Invitation sent successfully!\n\nMeeting: "${proposedMeeting.title}"\n${meetingInfo}Time: ${proposedMeeting.start.toLocaleString()}\nAttendees: ${selectedUsers.map(u => u.name).join(', ')}\n\nParticipants will receive calendar invitations via email.`);
 
       } catch (error) {
         console.error('Failed to send invitation:', error);

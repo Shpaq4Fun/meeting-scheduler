@@ -5,7 +5,7 @@ interface CreateMeetingModalProps {
   isOpen: boolean;
   onClose: () => void;
   users: User[];
-  onMeetingProposed: (slot: SuggestedSlot, title: string) => void;
+  onMeetingProposed: (slot: SuggestedSlot, title: string, message?: string) => void;
   currentWeekStartDate: Date;
 }
 
@@ -97,6 +97,7 @@ export const CreateMeetingModal: React.FC<CreateMeetingModalProps> = ({ isOpen, 
   const [time, setTime] = useState('10:00');
   const [duration, setDuration] = useState(60);
   const [includeJitsiMeet, setIncludeJitsiMeet] = useState(false);
+  const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   // Initialize draggable functionality when modal opens
@@ -115,6 +116,7 @@ export const CreateMeetingModal: React.FC<CreateMeetingModalProps> = ({ isOpen, 
     setTime('10:00');
     setDuration(60);
     setIncludeJitsiMeet(false);
+    setMessage('');
     setError(null);
     onClose();
   }, [onClose]);
@@ -138,15 +140,16 @@ export const CreateMeetingModal: React.FC<CreateMeetingModalProps> = ({ isOpen, 
              startTime: startTime.toISOString(),
              endTime: endTime.toISOString(),
              includeGoogleMeet: includeJitsiMeet,
+             message: message,
          };
 
-        onMeetingProposed(slot, title);
+        onMeetingProposed(slot, title, message);
         resetStateAndClose();
 
     } catch(e) {
         setError(e instanceof Error ? e.message : "An unknown error occurred.");
     }
-  }, [title, date, time, duration, users, onMeetingProposed, resetStateAndClose]);
+  }, [title, date, time, duration, message, users, onMeetingProposed, resetStateAndClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -237,7 +240,17 @@ export const CreateMeetingModal: React.FC<CreateMeetingModalProps> = ({ isOpen, 
             </label>
             
           </div>
-
+          <div>
+            <label htmlFor="title" className="block mb-1 font-semibold">Message</label>
+            <input
+              type="text"
+              id="message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full p-2 bg-gray-700 border border-gray-600 rounded"
+              placeholder="e.g., The meeting concerns the project updates"
+            />
+          </div>
           <div className="p-2 border border-dashed border-gray-500 rounded">
             <h4 className="font-semibold">Selected Users:</h4>
             <p className="text-sm text-gray-300">{users.map(u => u.name).join(', ') || 'None'}</p>
