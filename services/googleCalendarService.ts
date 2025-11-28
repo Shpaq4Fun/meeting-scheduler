@@ -137,6 +137,7 @@ export async function fetchEventsForUsers(
                 start: startDate,
                 end: endDate,
                 userId: user.id,
+                description: event.description,
               };
             })
             .filter((event): event is CalendarEvent => event !== null);
