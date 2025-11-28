@@ -13,8 +13,8 @@ export interface CalendarEvent {
   start: Date;
   end: Date;
   userId: string;
-  location?: string;
   description?: string;
+  location?: string;
 }
 
 export interface SuggestedSlot {

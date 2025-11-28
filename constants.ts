@@ -6,7 +6,7 @@ export const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 export const SCOPES = "https://www.googleapis.com/auth/calendar";
 
 export const USERS: User[] = [
-  { id: 'user-0', name: 'DMC Calendar', color: 'bg-gray-700', calendarId: ["c_8h6bnbm5se6ha0s6kol29fpeuk@group.calendar.google.com","sss"], 
+  { id: 'user-0', name: 'DMC Calendar', color: 'bg-gray-700', calendarId: ["c_8h6bnbm5se6ha0s6kol29fpeuk@group.calendar.google.com"], 
     invitationCalId: 'c_8h6bnbm5se6ha0s6kol29fpeuk@group.calendar.google.com', active: true},
   { id: 'user-1', name: 'Radosław Zimroz', color: 'bg-pink-500', calendarId: ['radoslaw.zimroz@pwr.edu.pl'], 
     invitationCalId: 'radoslaw.zimroz@pwr.edu.pl', active: false },

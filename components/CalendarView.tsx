@@ -49,8 +49,19 @@ const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, us
                     // Multi-day events (end date is after start date)
                     (endDate > startDate);
 
-  console.log(`EventCard rendering: "${event.title}" - All-day: ${isAllDay}, Color: ${userColor}`);
-
+  console.log(`EventCard rendering: "${event.title}" - All-day: ${isAllDay}, Color: ${userColor}, Description: ${event.description}`);
+  const fullString: string | undefined = event.description;
+  let desired_description: string;
+  // const desired_description: string[] = event.description.split('\n\n')[0]
+  if (fullString) { // This check covers both `undefined` and `null` values
+    // Now it's safe to use .split()
+    const parts: string[] = event.description.split('\n\n');
+    desired_description = parts[0];
+} else {
+    // Handle the case where the description is missing
+    console.log("Description field is empty or undefined.");
+    desired_description = ""; // Or any other default value you need
+}
   if (isAllDay) {
     console.log(`RENDERING ALL-DAY EVENT: ${event.title} at position top:${event.layout.top}rem`);
     return (
@@ -82,6 +93,8 @@ const EventCard: React.FC<{ event: ProcessedEvent; user?: User }> = ({ event, us
       <p className="font-bold">{event.title}</p>
       <p>{timeFormat.format(event.start)} - {timeFormat.format(event.end)}</p>
       {user && <p className="text-gray-200 text-[10px]">{user.name}</p>}
+      <p className="text-gray-200 text-[10px]">{desired_description}</p>
+
     </div>
   );
 };

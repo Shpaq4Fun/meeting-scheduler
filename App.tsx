@@ -239,8 +239,12 @@ const App: React.FC = () => {
       {/* <div className="border h-full border-blue-600 rounded-lg p-4 bg-[#1a202c]"> */}
         {/* <DynamicBackground /> */}
         {/* <DynamicBackground selectedUserIds={selectedUserIds} /> */}
-        <div className="flex flex-col md:flex-row gap-1 h-full relative bg-blue-800/0">
+        <div className="flex flex-col md:flex-row gap-4 h-full relative bg-blue-800/0">
           {/* Left Sidebar */}
+
+
+          
+
           <aside className=" w-full md:w-1/5 flex flex-col gap-2">
             <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
             <p className="text-sm text-gray-300">1. Sign in with PWR account (required for all GCal apps)</p>
@@ -277,11 +281,12 @@ const App: React.FC = () => {
             />
             </div>
           </aside>
-
           {/* Right Content */}
           <main className="w-full md:w-4/5 flex-row">
             <CalendarView events={events} users={USERS} startDate={currentWeekStartDate} setStartDate={setCurrentWeekStartDate} />
           </main>
+
+
         </div>
       {/* </div> */}
       <CreateMeetingModal
