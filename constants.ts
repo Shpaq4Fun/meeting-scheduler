@@ -56,7 +56,7 @@ export const USERS: User[] = [
     id: "user-5",
     name: "Daniel Kuzio",
     color: "bg-cyan-900",
-    calendarId: ["daniel.kuzio@pwr.edu.pl"],
+    calendarId: ["7r9ftmf6kda49hea36g415l2ffok3u2h@import.calendar.google.com", "daniel.kuzio@pwr.edu.pl"],
     invitationCalId: "daniel.kuzio@pwr.edu.pl",
     active: false,
     scholarID: "OTuZj0UAAAAJ",
