@@ -171,10 +171,10 @@ export const USERS: User[] = [
   },
   {
     id: "user-18",
-    name: "Arkadiusz Macek",
+    name: "Jakub Chmielewski",
     color: "bg-indigo-500",
-    calendarId: ["17je74irjiprf8gtninq5d3e1e9h7fjd@import.calendar.google.com"],
-    invitationCalId: "arkadiusz.macek@pwr.edu.pl",
+    calendarId: ["85gtufn6p5lu0kfop7ilfpv64r6fshng@import.calendar.google.com"],
+    invitationCalId: "jakub.chmielewski@pwr.edu.pl",
     active: true,
     scholarID: "None",
   },
