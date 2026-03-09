@@ -175,7 +175,7 @@ export const USERS: User[] = [
     color: "bg-indigo-500",
     calendarId: ["50u4lmc1o6r1p9avjt6lb4gue9gddtad@import.calendar.google.com"],
     invitationCalId: "jakub.chmielewski@pwr.edu.pl",
-    active: false,
+    active: true,
     scholarID: "None",
   },
   {

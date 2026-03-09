@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { UserSelection } from './components/UserSelection';
 import { Controls } from './components/Controls';
 import { CalendarView } from './components/CalendarView';
+import { ChartView } from './components/ChartView';
 import { CreateMeetingModal } from './components/CreateMeetingModal';
 import { USERS } from './constants';
 import { fetchEventsForUsers, createCalendarEvent, deleteCalendarEvent } from './services/googleCalendarService';
@@ -18,7 +19,7 @@ const App: React.FC = () => {
   const [includeJitsiMeet, setIncludeJitsiMeet] = useState(false);
   const [currentWeekStartDate, setCurrentWeekStartDate] = useState(new Date());
   const [isSignedIn, setIsSignedIn] = useState(false);
-  
+  const [isChart, setIsChart] = useState(false);
 
   useEffect(() => {
     // Initialize Google API client
@@ -41,6 +42,14 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('Sign-in failed:', error);
       setIsSignedIn(false);
+    }
+  };
+
+  const handleSwitching = async () => {
+    try {
+      setIsChart(!isChart);
+    } catch (error) {
+      console.error('Switching failed:', error);
     }
   };
 
@@ -236,40 +245,44 @@ const App: React.FC = () => {
   return (
     
     <div className="text-gray-200 p-2 font-sans flex-col flex-row">
-      {/* <div className="border h-full border-blue-600 rounded-lg p-4 bg-[#1a202c]"> */}
-        {/* <DynamicBackground /> */}
-        {/* <DynamicBackground selectedUserIds={selectedUserIds} /> */}
-        <div className="flex flex-col md:flex-row gap-4 h-full relative bg-blue-800/0">
-          {/* Left Sidebar */}
-
-
+      {/* <DynamicBackground /> */}
+      {/* <DynamicBackground selectedUserIds={selectedUserIds} /> */}
+      <div className="flex flex-col md:flex-row gap-4 h-full relative bg-blue-800/0">
+        {/* Left Sidebar */}
+        <aside className=" w-full md:w-1/5 flex flex-col gap-2">
+          {!isChart && (<h2 className="text-3xl font-bold mt-1 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>)}
+          {isChart && (<h2 className="text-3xl font-bold mt-1 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Citations Chart</h2>)}
+          {!isChart && (<p className="text-sm text-gray-300">1. Sign in with PWR account (required for all GCal apps)</p>)}
+          {!isChart && (<p className="-mt-2 text-sm text-gray-300">2. Select users for the meeting and the correct week.</p>)}
+          {!isChart && (<p className="-mt-2 text-sm text-gray-300">3. Create a meeting proposition.</p>)}
+          {!isChart && (<p className="-mt-2 text-sm text-gray-300">4. Send invitations to the created meeting to selected users. The meeting is hosted on DMC calendar.</p>)}
+          {isChart && (<p className="-mt-2 text-sm text-gray-300">1. Select users</p>)}
+          {isChart && (<p className="-mt-2 text-sm text-gray-300">2. Give it a moment, I can only scrape one user at a time.</p>)}
           
-
-          <aside className=" w-full md:w-1/5 flex flex-col gap-2">
-            <h2 className="text-3xl font-bold mt-2 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>
-            <p className="text-sm text-gray-300">1. Sign in with PWR account (required for all GCal apps)</p>
-            <p className="-mt-2 text-sm text-gray-300">2. Select users for the meeting and the correct week.</p>
-            <p className="-mt-2 text-sm text-gray-300">3. Create a meeting proposition.</p>
-            <p className="-mt-2 text-sm text-gray-300">4. Send invitations to the created meeting to selected users. The meeting is hosted on DMC calendar.</p>
-            {/* Always show user selection */}
-            <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
-
-            
-            <div style={{margin: 0 + ' auto'}} className=" flex flex-col gap-4 py-1 rounded-lg bg-[#1a202c]/0">
-            {/* Show sign-in button when not signed in */}
-            {!isSignedIn && (
-              <button style={{position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} onClick={handleSignIn} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 py-3 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
+          {/* Always show user selection */}
+          <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
+          <div style={{margin: 0 + ' auto'}} className=" flex flex-col gap-2 py-3 rounded-lg bg-[#1a202c]/0">
+            {!isChart && (
+              <button style={{position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} onClick={handleSwitching} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
+                Switch to Chart
+              </button>
+            )}
+            {isChart && (
+              <button style={{position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} onClick={handleSwitching} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
+                Switch to Calendar
+              </button>
+            )}
+            {!isChart && !isSignedIn && (
+              <button style={{position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} onClick={handleSignIn} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
                 Sign In with Google
               </button>
             )}
-            {isSignedIn && (
-              <div style={{maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} className="bg-gradient-to-r from-green-500 via-green-600 to-green-700 py-3 text-xl text-white font-bold px-4 rounded-lg text-center border border-green-300">
+            {!isChart && isSignedIn && (
+              <div style={{maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} className="bg-gradient-to-r from-green-500 via-green-600 to-green-700 py-2 text-xl text-white font-bold px-4 rounded-lg text-center border border-green-300">
                 ✅ Authenticated
               </div>
             )}
-            
-            {/* Show controls but disable when not signed in */}
-            <Controls
+            {!isChart && (<Controls
               onGenerateCalendar={handleGenerateCalendar}
               onCreateMeeting={handleCreateOrDeleteMeeting}
               onProposeMeeting={handleProposeMeeting}
@@ -278,17 +291,17 @@ const App: React.FC = () => {
               isGenerateDisabled={!isSignedIn}
               hasProposedMeeting={!!proposedMeeting}
               hasConfirmedMeeting={events.some(e => e.userId === 'confirmed-meeting')}
-            />
-            </div>
-          </aside>
-          {/* Right Content */}
-          <main className="w-full md:w-4/5 flex-row">
-            <CalendarView events={events} users={USERS} startDate={currentWeekStartDate} setStartDate={setCurrentWeekStartDate} />
-          </main>
+            />)}
+          </div>
+        </aside>
+        {/* Right Content */}
+        <main className="w-full md:w-4/5 flex-row">
+          {/* <CalendarView events={events} users={USERS} startDate={currentWeekStartDate} setStartDate={setCurrentWeekStartDate} /> */}
+          {isChart && (<ChartView selectedUsers={selectedUsers} />)}
+          {!isChart && (<CalendarView events={events} users={USERS} startDate={currentWeekStartDate} setStartDate={setCurrentWeekStartDate} />)}
+        </main>
+      </div>
 
-
-        </div>
-      {/* </div> */}
       <CreateMeetingModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

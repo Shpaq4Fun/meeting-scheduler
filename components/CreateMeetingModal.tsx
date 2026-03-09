@@ -137,11 +137,11 @@ export const CreateMeetingModal: React.FC<CreateMeetingModalProps> = ({ isOpen, 
         const endTime = new Date(startTime.getTime() + duration * 60 * 1000);
 
         const slot: SuggestedSlot = {
-             startTime: startTime.toISOString(),
-             endTime: endTime.toISOString(),
-             includeGoogleMeet: includeJitsiMeet,
-             message: message,
-         };
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+            includeGoogleMeet: includeJitsiMeet,
+            message: message,
+        };
 
         onMeetingProposed(slot, title, message);
         resetStateAndClose();

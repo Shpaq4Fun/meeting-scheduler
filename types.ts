@@ -5,6 +5,7 @@ export interface User {
   calendarId: string[];
   invitationCalId?: string;
   active?: boolean;
+  scholarID?: string;
 }
 
 export interface CalendarEvent {

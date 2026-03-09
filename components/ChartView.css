@@ -1,0 +1,58 @@
+.chart-container {
+  /* background: rgba(26, 32, 44, 0.1); */
+  /* backdrop-filter: blur(3px); */
+  /* border: 1px solid rgba(255, 255, 255, 0.1); */
+  /* border-radius: 1rem; */
+  padding: 0.5rem;
+  height: 98vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-title {
+  font-size: 1.875rem;
+  font-weight: 300;
+  color: #d1d5db;
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+.recharts-text {
+  fill: #9ca3af !important;
+  font-size: 12px;
+}
+
+.recharts-legend-item-text {
+  color: #d1d5db !important;
+}
+
+.custom-tooltip {
+  background: rgba(12, 22, 46, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  backdrop-filter: blur(3px);
+  font-weight: bold;
+}
+
+.tooltip-label {
+  color: #f3f4f6;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.tooltip-item {
+  font-size: 0.875rem;
+  font-weight: bold;
+  margin-top: 0.25rem;
+}
