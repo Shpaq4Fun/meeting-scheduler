@@ -75,8 +75,8 @@ const App: React.FC = () => {
       const visibleEvents = await fetchEventsForUsers(selectedUsers, currentWeekStartDate);
       // console.log('Successfully fetched calendar data:', visibleEvents.length, 'events');
       // console.log('Events by user:', visibleEvents.reduce((acc, event) => {
-        // acc[event.userId] = (acc[event.userId] || 0) + 1;
-        // return acc;
+      // acc[event.userId] = (acc[event.userId] || 0) + 1;
+      // return acc;
       // }, {} as Record<string, number>));
       setEvents(visibleEvents);
       setProposedMeeting(null);
@@ -113,12 +113,12 @@ const App: React.FC = () => {
     setIncludeJitsiMeet(slot.includeGoogleMeet || false);
     setEvents(prev => [...prev.filter(e => e.id !== (proposedMeeting?.id || '')), newMeeting]);
     setIsModalOpen(false);
-  },[proposedMeeting]);
+  }, [proposedMeeting]);
 
   const handleProposeMeeting = useCallback((slot: SuggestedSlot, title: string) => {
     // suggestMeetingTimes(schedules, durationMinutes, prompt, weekStartDate)
     setProposedMeeting([]);
-  },[proposedMeeting]);
+  }, [proposedMeeting]);
 
   const handleCreateOrDeleteMeeting = useCallback(async () => {
     // Check if there's a proposed meeting to delete
@@ -199,10 +199,10 @@ const App: React.FC = () => {
         });
 
         // Create the calendar event and send invitations
-        const meetingDescription = proposedMeeting.description 
+        const meetingDescription = proposedMeeting.description
           ? `${proposedMeeting.description}\n\nMeeting scheduled via DMC Meeting Scheduler with ${selectedUsers.map(u => u.name).join(', ')}`
           : `Meeting scheduled via DMC Meeting Scheduler with ${selectedUsers.map(u => u.name).join(', ')}`;
-        
+
         const createdEvent = await createCalendarEvent(
           {
             title: proposedMeeting.title,
@@ -226,10 +226,10 @@ const App: React.FC = () => {
         setProposedMeeting(null);
 
         // Show success message with event details
-        const meetingInfo = proposedMeeting.description 
+        const meetingInfo = proposedMeeting.description
           ? `Message: "${proposedMeeting.description}"\n`
           : '';
-        
+
         alert(`✅ Invitation sent successfully!\n\nMeeting: "${proposedMeeting.title}"\n${meetingInfo}Time: ${proposedMeeting.start.toLocaleString()}\nAttendees: ${selectedUsers.map(u => u.name).join(', ')}\n\nParticipants will receive calendar invitations via email.`);
 
       } catch (error) {
@@ -243,42 +243,42 @@ const App: React.FC = () => {
   }, [proposedMeeting, selectedUsers]);
 
   return (
-    
+
     <div className="text-gray-200 p-2 font-sans flex-col flex-row">
       {/* <DynamicBackground /> */}
       {/* <DynamicBackground selectedUserIds={selectedUserIds} /> */}
       <div className="flex flex-col md:flex-row gap-4 h-full relative bg-blue-800/0">
         {/* Left Sidebar */}
         <aside className=" w-full md:w-1/5 flex flex-col gap-2">
-          {!isChart && (<h2 className="text-3xl font-bold mt-1 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Meeting Planner</h2>)}
-          {isChart && (<h2 className="text-3xl font-bold mt-1 mb-1 text-gray-300" style={{textAlignLast: 'center'}}>DMC Citations Chart</h2>)}
+          {!isChart && (<h2 className="text-3xl font-bold mt-1 mb-1 text-gray-300" style={{ textAlignLast: 'center' }}>DMC Meeting Planner</h2>)}
+          {isChart && (<h2 className="text-3xl font-bold mt-1 mb-1 text-gray-300" style={{ textAlignLast: 'center' }}>DMC Citations Chart</h2>)}
           {!isChart && (<p className="text-sm text-gray-300">1. Sign in with PWR account (required for all GCal apps)</p>)}
           {!isChart && (<p className="-mt-2 text-sm text-gray-300">2. Select users for the meeting and the correct week.</p>)}
           {!isChart && (<p className="-mt-2 text-sm text-gray-300">3. Create a meeting proposition.</p>)}
           {!isChart && (<p className="-mt-2 text-sm text-gray-300">4. Send invitations to the created meeting to selected users. The meeting is hosted on DMC calendar.</p>)}
           {isChart && (<p className="-mt-2 text-sm text-gray-300">1. Select users</p>)}
           {isChart && (<p className="-mt-2 text-sm text-gray-300">2. Give it a moment, I can only scrape one user at a time.</p>)}
-          
+
           {/* Always show user selection */}
           <UserSelection users={USERS} selectedUserIds={selectedUserIds} onUserToggle={handleUserToggle} />
-          <div style={{margin: 0 + ' auto'}} className=" flex flex-col gap-2 py-3 rounded-lg bg-[#1a202c]/0">
-            {!isChart && (
-              <button style={{position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} onClick={handleSwitching} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
+          <div style={{ margin: 0 + ' auto' }} className=" flex flex-col gap-2 py-3 rounded-lg bg-[#1a202c]/0">
+            {/* {!isChart && (
+              <button style={{ position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px' }} onClick={handleSwitching} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
                 Switch to Chart
               </button>
             )}
             {isChart && (
-              <button style={{position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} onClick={handleSwitching} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
+              <button style={{ position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px' }} onClick={handleSwitching} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
                 Switch to Calendar
               </button>
-            )}
+            )} */}
             {!isChart && !isSignedIn && (
-              <button style={{position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} onClick={handleSignIn} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
+              <button style={{ position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px' }} onClick={handleSignIn} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
                 Sign In with Google
               </button>
             )}
             {!isChart && isSignedIn && (
-              <div style={{maxWidth: 350 + 'px', borderRadius: 25 + 'px'}} className="bg-gradient-to-r from-green-500 via-green-600 to-green-700 py-2 text-xl text-white font-bold px-4 rounded-lg text-center border border-green-300">
+              <div style={{ maxWidth: 350 + 'px', borderRadius: 25 + 'px' }} className="bg-gradient-to-r from-green-500 via-green-600 to-green-700 py-2 text-xl text-white font-bold px-4 rounded-lg text-center border border-green-300">
                 ✅ Authenticated
               </div>
             )}
