@@ -266,7 +266,7 @@ const App: React.FC = () => {
               <button style={{ position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px' }} onClick={handleSwitching} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
                 Switch to Chart
               </button>
-            )}
+            )} 
             {isChart && (
               <button style={{ position: 'relative', maxWidth: 350 + 'px', borderRadius: 25 + 'px' }} onClick={handleSwitching} className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 py-2 text-xl hover:bg-blue-800 transition duration-300 text-white px-2 rounded-lg border border-blue-300">
                 Switch to Calendar
