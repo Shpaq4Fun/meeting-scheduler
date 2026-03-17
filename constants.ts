@@ -182,9 +182,9 @@ export const USERS: User[] = [
     id: "user-19",
     name: "Bartosz Miszkieło",
     color: "bg-teal-600",
-    calendarId: ["bartosz.miszkielo@pwr.edu.pl"],
+    calendarId: ["c_6569c0c1e78291c8451f3d7a4939ee28671f27e24fbbe3f0dbbafdfc07350cab@group.calendar.google.com"],
     invitationCalId: "bartosz.miszkielo@pwr.edu.pl",
-    active: false,
+    active: true,
     scholarID: "None",
   },
 ];
