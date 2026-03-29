@@ -164,6 +164,57 @@ export async function fetchEventsForUsers(
       }
     }
   }
+
+  // Fetch FreeBusy information and identify "BUSY" blocks
+  try {
+    const freeBusyItems = users.flatMap(user => user.calendarId.map(id => ({ id })));
+    if (freeBusyItems.length > 0) {
+      console.log('Fetching FreeBusy for calendars:', freeBusyItems);
+      const freeBusyResponse = await window.gapi.client.calendar.freebusy.query({
+        resource: {
+          timeMin,
+          timeMax,
+          items: freeBusyItems,
+        },
+      });
+
+      const calendars = freeBusyResponse.result.calendars;
+      if (calendars) {
+        for (const [calId, busyInfo] of Object.entries(calendars)) {
+          const user = users.find(u => u.calendarId.includes(calId));
+          const busyBlocks = (busyInfo as any).busy;
+          if (user && busyBlocks) {
+            busyBlocks.forEach((block: any, index: number) => {
+              const start = new Date(block.start);
+              const end = new Date(block.end);
+
+              // Check if this block is already represented by an existing real event for this user
+              // We skip it if an event already covers or matches this busy period
+              const isAlreadyDefined = allEvents.some(e => 
+                e.userId === user.id && 
+                e.start.getTime() <= start.getTime() && 
+                e.end.getTime() >= end.getTime()
+              );
+
+              if (!isAlreadyDefined) {
+                allEvents.push({
+                  id: `freebusy-${calId}-${index}`,
+                  title: 'BUSY',
+                  start,
+                  end,
+                  userId: user.id,
+                  description: '',
+                  location: '',
+                });
+              }
+            });
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to query FreeBusy:', err);
+  }
   
   return allEvents;
 }
