@@ -35,20 +35,22 @@ export const initClient = async (): Promise<void> => {
   initPromise = (async () => {
     await waitForGoogleScripts();
 
-    // Load GAPI client and initialize
-    await new Promise<void>((resolve, reject) => {
+    // Load GAPI client and initialize (Calendar discovery doc)
+    await new Promise<void>((resolve) => {
       window.gapi.load('client', async () => {
         try {
-          await window.gapi.client.init({
-            apiKey: API_KEY,
+          const initConfig: any = {
             discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
-          });
+          };
+          if (API_KEY) {
+            initConfig.apiKey = API_KEY;
+          }
+          await window.gapi.client.init(initConfig);
           console.log('Google API client initialized successfully');
-          resolve();
         } catch (error) {
-          console.error('Failed to initialize Google API client:', error);
-          reject(error);
+          console.warn('GAPI client init warning (OAuth will still proceed):', error);
         }
+        resolve();
       });
     });
 
