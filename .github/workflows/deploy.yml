@@ -43,10 +43,10 @@ jobs:
       - name: Build the project
         run: npm run build # --- ⚠️ CUSTOMIZE THIS ---
         env:
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
-          VITE_CLIENT_ID: ${{ secrets.VITE_CLIENT_ID }}
-          VITE_SERVER_ADDRESS: ${{ secrets.VITE_SERVER_ADDRESS }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY || vars.VITE_GEMINI_API_KEY }}
+          VITE_API_KEY: ${{ secrets.VITE_API_KEY || vars.VITE_API_KEY }}
+          VITE_CLIENT_ID: ${{ secrets.VITE_CLIENT_ID || vars.VITE_CLIENT_ID }}
+          VITE_SERVER_ADDRESS: ${{ secrets.VITE_SERVER_ADDRESS || vars.VITE_SERVER_ADDRESS }}
           
       - name: Setup Pages
         uses: actions/configure-pages@v4
