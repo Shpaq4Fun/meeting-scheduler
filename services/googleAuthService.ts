@@ -4,63 +4,100 @@ import { CLIENT_ID, API_KEY, SCOPES } from '../constants';
 let tokenClient: any = null;
 let accessToken: string | null = null;
 
-export const initClient = async () => {
-  return new Promise((resolve, reject) => {
-    // Load GAPI client
-    window.gapi.load('client', async () => {
-      try {
-        // Initialize GAPI client
-        await window.gapi.client.init({
-          apiKey: API_KEY,
-          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
-        });
+// Helper to wait for global script dependencies (gapi and google.accounts.oauth2)
+const waitForGoogleScripts = async (timeoutMs = 10000): Promise<void> => {
+  const startTime = Date.now();
+  while (Date.now() - startTime < timeoutMs) {
+    if (
+      typeof window !== 'undefined' &&
+      window.gapi &&
+      window.google &&
+      window.google.accounts &&
+      window.google.accounts.oauth2
+    ) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error('Google identity or API scripts failed to load in time.');
+};
 
-        console.log('Google API client initialized successfully');
+let initPromise: Promise<void> | null = null;
 
-        // Initialize Google Identity Services token client
-        tokenClient = window.google.accounts.oauth2.initTokenClient({
-          client_id: CLIENT_ID,
-          scope: SCOPES,
-          callback: (response: any) => {
-            if (response.error) {
-              console.error('Token client error:', response);
-              reject(new Error(`Token error: ${response.error}`));
-            } else {
-              accessToken = response.access_token;
-              console.log('Access token obtained successfully');
-              resolve(undefined);
-            }
-          },
-        });
+export const initClient = async (): Promise<void> => {
+  if (tokenClient) {
+    return;
+  }
+  if (initPromise) {
+    return initPromise;
+  }
 
-        resolve(undefined);
-      } catch (error) {
-        console.error('Failed to initialize Google API client:', error);
-        reject(error);
-      }
+  initPromise = (async () => {
+    await waitForGoogleScripts();
+
+    // Load GAPI client and initialize
+    await new Promise<void>((resolve, reject) => {
+      window.gapi.load('client', async () => {
+        try {
+          await window.gapi.client.init({
+            apiKey: API_KEY,
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+          });
+          console.log('Google API client initialized successfully');
+          resolve();
+        } catch (error) {
+          console.error('Failed to initialize Google API client:', error);
+          reject(error);
+        }
+      });
     });
-  });
+
+    if (!CLIENT_ID) {
+      throw new Error('VITE_CLIENT_ID is not defined. Please check environment variables.');
+    }
+
+    // Initialize Google Identity Services token client
+    tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: (response: any) => {
+        if (response.error) {
+          console.error('Token client error:', response);
+        } else {
+          accessToken = response.access_token;
+          console.log('Access token obtained successfully');
+        }
+      },
+    });
+  })();
+
+  return initPromise;
 };
 
 export const signIn = async () => {
   if (!tokenClient) {
-    throw new Error('Token client not initialized');
+    await initClient();
+  }
+
+  if (!tokenClient) {
+    throw new Error('Token client not initialized. Google scripts may be blocked or unavailable.');
   }
 
   return new Promise((resolve, reject) => {
-    // Request access token
-    tokenClient.requestAccessToken();
-
-    // Set up a callback to handle the response
     const originalCallback = tokenClient.callback;
     tokenClient.callback = (response: any) => {
-      originalCallback(response);
+      if (originalCallback) {
+        originalCallback(response);
+      }
       if (response.error) {
         reject(new Error(`Sign-in failed: ${response.error}`));
       } else {
         resolve(response);
       }
     };
+
+    // Request access token (prompts Google OAuth consent popup)
+    tokenClient.requestAccessToken();
   });
 };
 
