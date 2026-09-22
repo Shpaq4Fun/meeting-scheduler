@@ -35,28 +35,15 @@ export const initClient = async (): Promise<void> => {
   initPromise = (async () => {
     await waitForGoogleScripts();
 
-    // Load GAPI client and load the calendar API
+    // Load GAPI client and load the calendar API v3 directly
     await new Promise<void>((resolve) => {
       window.gapi.load('client', async () => {
         try {
-          if (API_KEY) {
-            await window.gapi.client.init({
-              apiKey: API_KEY,
-              discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
-            });
-          }
-        } catch (error) {
-          console.warn('gapi.client.init warning:', error);
-        }
-
-        // Ensure calendar API methods (window.gapi.client.calendar) are loaded
-        try {
-          if (!window.gapi.client.calendar) {
-            await window.gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
-          }
+          // Load calendar API without attaching apiKey to avoid 400 bad request on discovery
+          await window.gapi.client.load('calendar', 'v3');
           console.log('Google Calendar API client loaded successfully');
         } catch (loadError) {
-          console.error('Failed to load Google Calendar API discovery doc:', loadError);
+          console.error('Failed to load Google Calendar API client:', loadError);
         }
 
         resolve();
